@@ -12,6 +12,56 @@ Docker Architecture?
 Docker CLI--->to perform docker options like docker pull 
 Docker Registry->to push our image or container to docekr registry so other can able to pull from here
 
+
+Docker Engine
+=============
+Docker engine responsible for creating container and managing the containers.
+
+
+Docker Deamon:
+=============
+
+Docker Deamon is a background processor ,it will create the images,containers ,networks  and volumes.
+
+
+Docker Image:
+=============
+It is nothing but a set of instructions. it is very lightweight also.
+
+Remove Image: docker rmi <image id>
+
+
+
+Docker Container
+================
+If we run docker image it will create docker container.it is not  lightweight.
+
+
+Remove Container: docker rm <container id>
+
+
+Steps to follow:
+================
+
+1. docker search <image-name>(it will search the image in docker registry)
+
+2. docker images (to see all the images which we have)
+
+3. docker pull <image-name> (ex:postgres:latest),it will pull the image
+
+4. docker ps -a (to see all the containers which we have created by using images)
+
+5. docker create <image-name>(postgress) or we can use <container-id>,it will create the container by using image name
+
+6. docker start <container id> (it will start the container,no need to use full id,we can use starting 4 also)
+
+7. docker stop <container id> (it will stop the container)
+
+8.docker pause <container id> (it will pause the running container)
+
+
+
+
 Docker Commands 
 ===============
 download image: docker pull <imagename>
@@ -56,9 +106,6 @@ To interactive docker images (ex for ubantu image): docker run -it ubantu
 to exit from image: exit 
 
 
-Containers Spring boot application
-==================================
-
 what is docker file?
 --------------------
 A Docker file is a text file that contain step by step instruction to create docker image.
@@ -66,31 +113,51 @@ A Docker file is a text file that contain step by step instruction to create doc
 .Base Image
 .Working Directory
 .Copy Jar
-.Expost Port
+.Expose Port
+
+----------------------------------------------------------------------------------------------------
+
+
+==================================
+Containers Spring boot application
+==================================
+
+If we create jar file direclty it will give our project name with snapshot with some versions so if  want to customize jar name , go to pom.xml and go to build tag create like below
+
+<finalName>backend-assignment</finalName>
+
 
 1.Create Docker file in spring boot application
 -----------------------------------------------
 
-From eclipse-tumerin
+FROM eclipse-temurin:17-jdk
+
 WORKDIR /app
-COPY targer/<project jar> app.jar
+
+COPY target/Backend-Assignment-0.0.1-SNAPSHOT.jar app.jar
+
 EXPOSE 8080
+
 ENTRYPOINT ["java","-jar","app.jar"]
+
+
 
 2.Create Image for this Docker file in Terminal
 -----------------------------------------------
 docker build -t <name of the image>:<version> .
 
-<!-- this is port mapping and running image
+this is port mapping and running image
+-------------------------------------
 
 docker run -p 8080:8080 <name of the imgae>:<version>
 
 if have environtment variable we will pass like this below
+----------------------------------------------------------
 
 docker run -d -e SERVER_PORT=9090 -p 8080:9090 <name of the imgae>:<version>
- --> 
  
- this part we can skip with belwo eclipse configuration
+ 
+ this part we can skip with below eclipse configuration
 
 by using eclipse we can configure easy
 -------------------------------------
@@ -126,31 +193,75 @@ docker volume rm <name of the volume>
 Docker Compose
 ==============
 Docker compose allows us to define and run multi-container docker applications using a yml file.
-version:latest
 
+docker-compose.yml
+-------------------
+version: "1.0"
 services:
-  app:
-   image: docker-demo:1.0
-   ports:
-     - 9090:9090
-   environment:
-     - SERVER_PORT: 9090
-   volumes: 
-     - names-volume:/app
+    app:
+      build: .
+      container_name: backend-assignment
+      environment:
+        SERVER_PORT: 8080
+      ports:
+        - 8081:8080
+      depends_on:
+        - postgres
+      networks:
+        - backend-assignment-network
 
-volumes: 
-  names-volume
+    postgres:
+      image: postgres:16
+      container_name: postgres
+      environment:
+        POSTGRES_USER: manoj
+        POSTGRES_PASSWORD: manoj@123
+        POSTGRES_DB: backend_assignment
+      ports:
+        - 5433:5432
+      networks:
+       - backend-assignment-network
+      volumes:
+      - backend-assignment-data:/var/lib/postgresql/data
+
+networks:
+  backend-assignment-network:
+    driver: bridge
+
+volumes:
+  backend-assignment-data:
+
+
+
+  application.yml
+  ---------------
+
+server:
+  port: ${SERVER_PORT:8080}
+spring:
+  application:
+    name: Backend-Assignment
+  datasource:
+    url: jdbc:postgresql://postgres:5432/backend_assignment
+    username: manoj
+    password: manoj@123
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
 
   to run this compose yml file we have to run below command
 -------------------------------------------------------------
 
-docker compose up
+docker compose up --build
 
   to stop this compose yml file we have to run below command
 -------------------------------------------------------------
 
-docker compose down
+docker compose down -v
 
+----------------------------------------------------------------------------------------------------
 
 
 Docker Networking
