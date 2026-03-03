@@ -97,6 +97,8 @@ by using eclipse we can configure easy
 
 click on edit configuration there we have + symbol on left above,there we have docker file and docker image,docker file is used to run docker image on container and docker images is used to pull it and run the container,there we have  option to set the port and env variables also.
 
+reference image also there in docker folder.
+
 
 Docker Volume
 ==============
