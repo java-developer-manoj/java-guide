@@ -1,0 +1,282 @@
+What are microservices:
+=======================
+-Microservices are an architectural style where an application is built as 
+a collection of small,independent and loosely coupled services.
+
+Ex:if we see e-commerce application they might built built different modules for each service like,payment module,user module,order module
+
+why because each module developed independtly and deployed independantly it is very easy debug ,maintain easily and scalable.
+
+How do Microservices diffr with monolithic
+==============================================
+Architecture:
+-------------
+In Monolithic application we have single code base that contain all modules tightly coupled with one executable.
+
+In Microservices the decoupled,all the modules are separate entities,each them provide separate business function,the communication happen through api's
+
+Scalability:
+-----------
+For Monolithic application we will deployed entire project in single server with more cpu specification
+
+But for Microservices each module will deployed in different servers with less cpu it easy to maintain
+
+Deployment
+----------
+Monolithic application we deployed in single server so if change any small thing we have to re deploy whole application 
+
+But in Microservice we will deploy only that microservice where we want to updates.
+
+What are the Keyfeatures of the Microservices:
+==============================================
+-Independent Deployment 
+-----------------------
+(each service operate independenlty and this allows seemles deployment updates and maintainance without impacting the functionality of other microservices)
+
+-Fault Isolation
+----------------
+(if a failure in one service it doesn't cause the entire application to fail)
+
+-Scalability
+------------
+(Each service can scalabel based on its specific load and demand and thereby optimizing the resource usage and performance)
+
+
+Name of the main Components of Microservices:
+==============================================
+
+Core Characteristics
+---------------------
+-Service Independence
+-DDD (Domain-Driven Design)
+-API Communication
+-Technology Diversity
+
+Service Registry and Discovery
+------------------------------
+-API GateWay
+-Load Balancer
+-Data Management
+-Monitoring and logging
+-CI/CD pipeline
+
+Explain the role of API Gateway in Microservice:
+================================================
+-An API gateway serves as  a centralized entry point for managing client interactions with microservices.It simplifies communication by routing incoming request to the appropriate microservices and handling various operational responsibilities.
+
+-And  authentication and authorization  the gateway verifies  the user credintials and enforces security policies to ensure that onlt authorized users can access specific services
+
+What is Service Discovery In Microservices:
+===========================================
+-Service Discovery is mechanism that enables microservices to dynamically locate and communicate with each other within a distributed system.It ensures that service can find and connect to other services without hardcoded configurations ,promoting flexibilty and scalability.
+
+-There are 2 types discoveries
+
+1.Client side discovery
+-------------------------
+
+-This particular approach each service is responsible for keep tracking of managing its own service registry.
+
+2.Server side discovery
+-------------------------
+
+-Centralized registry such as ureka or a console maintain the locations and the status of all the services.
+
+when client make an request server side the server side load balancer queries the registry and router the request with appropriate service instance.
+
+What is a container and why it is used in Microservices
+=======================================================
+-Basically container is lightweight,stand alone unit that bundles an application along with its dependencies ,including libraires,configurations and runtime,to ensure consistancy across different environments.
+
+Use of Containers
+------------------
+Basically there are two important benfits for using containers.
+
+1.Consistent deployment 
+-----------------------
+so container ensures that application run the sameway in development ,testing and productio environment with minimize the compatability issues.
+
+2.Faster startup time
+----------------------
+Containers are more lightweight and have faster  initialization times compare to traditional virtual  machine,there by enabaling quicker deployments and scalability.
+
+How do Microservices communicate eachother
+==========================================
+-The Microservices architecture,communication between service is crucial for achieving coordination and collabration.Since Microservices are designed to be independent and loosely coupled they relay on well defined communication protocal and mechanisms.
+
+Three Ways we can call
+------------------
+
+1.REST API's
+--------------
+Using rest api's ,this is a lightweight and widely used communication protocal and it uses http methods like get,post,put, delete to facilitate synchronous communication between services.
+
+2.Message Queue(Kafka and AWS sqs)
+---------------------------------
+message queues enables asynchronous communication between services,thereby allowing messages to be sent and recieved without requiring the services to be active simultaneously.
+
+3.GRPC (G Remote Procedure Call)
+--------------------------------
+Basically this is a hight peformance framework developed by google ,it uses http2 for communication and protocal buffers for data serialization , thereby this makes it more efficient than rest for some use cases.
+
+How Would you handle a Microservice Failure:
+===========================================
+In a Microservice architecture,failures are invetible,but the goal is to minimize their impact on the overall system.since microservices often communicate each other,one failure can trigger a chain reaction,leading to cascade failures that effect the entire application.
+
+To handle
+---------
+1.Circuite breaker
+
+Circuite breaker is a designed pattern that helps prevent cascading failures by stopping the flow of requests to a service that is likely to fail so if a micro service detects that another service is not responding or is behaving in a weird way so that circuit breaker opens preventing further requests to the failing service and this allows it for the time to recover
+
+2.Retries and fallbacks
+
+So when service fails to respond a retry mechanism can automatically attempt to resend the request after a short delay so this is particularly useful in scenarios where the failure is due to temporary issues such as network congestion or brief outages.
+
+3.Centralized Logging
+
+So in a microservices environment trouble shooting and identifying the root cause of failures can be difficult due to distributed nature of the system so over here centralized logging aggregates the logs from all of the services into one location and make it easier to monitor the system and quickly identify and resolve failures.
+
+How can you ensure backward compatability in microservices
+==========================================================
+
+Backward compatability is very critical when deploying updates to microservices to avoid breaking client applications using versioning in api's and following semantic versioning principles can ensure smooth transitions.
+
+What is the meaning of OAuth why is it used:
+==========================================
+Basically OAuth stands for open authorization.It is an open standard protocal that allows third party applicaitons to access a users resources without exposing their credintials such as usernames and passwords.
+
+What is CQRS pattern in Microservices and what problem does it solve?
+================================================================
+
+CQRS stands for command query system in which data operations are separated into two commands which writes data into databse and query system which reads data from database or data store.
+
+
+Compare API gateway and LoadBalancer in Microservices
+=====================================================
+Load Balancer
+-------------
+LoadBalancer is basically an old concept which used to distribute load or traffic across multiple instances. 
+
+API gateway
+-----------
+API gateway is a microservice pattern which not only does load balancing but also can be used for lookup and can also simplify client code.
+
+What are some common Microservices design principles
+====================================================
+-High cohesion
+--------------
+(basically refers to the design of each microservices to be focused around a single well defined resopnsibility or a business capability)
+
+-Autonomous
+------------
+(Microservice is designed to be autonomous so what does it means they shd operate independently without depending one one another,each microservice should have its own data business logic and the interface so this principle emphasizes loose coupling between the services so that one service failure doesnot effect the other service)
+
+-Business Domain Centric
+-------------------------
+Microservices shd be aligned with business domains  or capabilities rather than technical layers or function so each service should correspond to a specific business function or a capability making the architecutre more intuitive and closely tied to business objective.
+
+-Resilience
+------------
+So Basically Microservices  should resilience to failure and designed to gracefully handle disruptions or faults or faults so this includes stratagies like redundency circuit breakers retries and fallback to ensure that a failure in one service doesnot lead a systemwide downtime.
+
+-Observable
+------------
+So Basically Observability basically refers to ability to monitor track the health and performance of microservice in real time so this includes logging metrics and tracing to capture the insights into how services are performing and interacting with one anither 
+
+-Automation
+------------
+Automation is a key principle in microservice design and this refers to the use of automated process for deployment ,testing ,scaling and management of microservices so automated pipelines can ensure that microservices can be deployed quickly and reliabily.
+
+How do you ensure Secure in Microservices
+========================================
+Securing microservice is a crucial thing and it is very important as you need to protect the sensitive data and maintain the integrity of interaction between the services so since microservices typically involve numerous services communicating with one other across different environments so they are more able to various security risks compare to traditional monolithic architecture.so now if you want ensure security in microservice there are few practices that you need to follow.
+
+-Secure Communication
+---------------------
+Securing Communication refers to encrypting the data exchange between microservices to prevent eavesdropping manin the middle attacks and unauthorized data access so this done by using TLS(Transfort Layer Security) or SSH(Secure Socket Layer)
+
+-Authentication and Authorization
+---------------------------------
+Authentication and Authorization ensures that only verified and authorized users or Services can access specific resources in the microservices system,authentication verifies the identity of the users of services while authorization defines what actions or resources they can access.
+
+-Service-Level Isolation
+-------------------------
+Basically this refers to restricting access between microservices to only the necessary communication paths so this ensures that the services interact only with the ones that they are meant to communicate with reducing the risk of attackers and gaining access to other service
+
+What are the few ways to achieve Synchronous and Asynchronous Communication between Microservices
+=============================================================
+Synchronous
+------------
+There are many ways to implement Synchronous communication in microservices architecture like u can use REST API calls,gRPC or GRAPHQL API to retirve data from server in synchronous manner and also to upload data to server.
+
+Asynchronous
+-------------
+For Asynchronous communication so here we can use  Apache Kafka ,Rabbit MQ,Active MQ,here message broker allow sender to send and forget and reciever then can process when they are free giving both the sender and reciever the freedom to work based on there speed.
+
+How Do You Implement Rate Limiting Microservices
+================================================
+Rate Limiting is a very important aspect of managing the load on a system expecially in mircroservices architecture  where multiple services can interact and can experience heavy or unexpected traffic.
+
+* Rate Limiting ensures fair usage of resources by controlling how many requests a client can make within a certain time period.
+* so this product services from being overwhelmed by too many requests preventing abuse and helps to  maintain the system stability and perform.
+
+There are two ways 
+-----------------
+Token Bucket algorithm(Mostly widely used techinque)
+----------------------------------------------------
+In this particular method tokens are replaced in a bucket ,each incoming request consume one token, so if the bucket has token available the request can be process or it can be proceed further,if not the request is denied.
+
+S the token are re-filled peridiocally at the constant rate thereby allowing the client to make new requests overtime.
+
+API GateWay For Rate Limiting
+-------------------------
+API GateWay is a critical tool in mciroservices that serves as entry point for all clien requests.so basically it can be configure to handle the rate limiting for all incoming traffic before reaching the backend service.
+
+What is Event-Driven Architecture in Microservices
+===================================================
+Event-Driven Architecture is a Design pattern where microservices communicate with each other by producing and consuming events rather than making direct API Calls.
+
+So this Architecture services emit events to signal that something has occured and other services listen to these events to trigger actions or processes in response so this pattern enables asynchronous communication allowing services to operate independently without needing to be tightly coupled.
+
+So Basically  Event-Driven Architecture helps increase scalability flexibility and responsiveness in a microservices ecosystem.
+
+What is Idempotency,and why is it Important in Microservices
+============================================================
+Idempotency is a key concept in distributed systems and microservices architecture.It ensures that making the same request mulitple time produces the same result,regardless of how many times it is executed.so this characteristic is crucial for systems that need to handle retries due to transient failures network issues or other interruptions  so in Microservices where communication often done over unreliable networks it is common for request to be retried either by the client or the system itself so without Idempotency retrying the same request lead to inconsistant or undersirable outcome such as creating duplicate records or performing the same operation multiple times so Idempotency basically helps to eliminate these issues guaranteening that the repeating a request will not alter the final state of the system.
+
+What is database sharding and whay is it used in Microservices?
+==============================================================
+
+Database sharding is a technique used in distributed database systems where large datasets are divided into smaller or more manageable pieces called shards.Shard contains a subset of the data and can be stored on separate database instances or servers so in microservices architecture database sharding is particularly useful as it allows each service to handle its own database ensuring that no single database becomes a bottleneck as the system grows so each mircroservice can operate independently with its own shard which can be scaled as and when needed without affecting the other services.
+
+
+How do you handle Data Consistency in Microservices
+===================================================
+So in a distributed system maintaining the consistency across different services is pretty much challenging so microservices typically follow the eventually consistency  model where all the services eventually converge into the same data state rather than maintaining the immediate consistency so there are a few techniques to handle the data consistency in microservices and those techniques are listed below
+
+.Saga Pattern
+-------------
+here there are two topics 1st one is Choreopgraphy Choreopgraphy is over here the services communicate through events and each service performs its task and emits an event for the next service.and the second one over here is the orchestration 
+
+.Event Sourcing 
+-------------
+.Distributed Transactions 
+--------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,267 @@
+🌱 SPRING IoC – COMPLETE FLOW (XML BASED)
+
+1️⃣ Creating Spring IoC Container
+
+Main Class
+
+ApplicationContext context =
+        new ClassPathXmlApplicationContext("spring.xml");
+
+What Spring Does
+
+Reads spring.xml
+
+Creates objects (beans)
+
+Injects dependencies
+
+Manages lifecycle
+
+👉 Developer never uses new keyword
+
+2️⃣ Simple Bean Class (POJO)
+package com.nit;
+
+public class Demo {
+
+    private int id;
+    private String name;
+
+    // setter injection
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    // constructor injection
+    public Demo(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+
+✔ No Spring API
+✔ Pure Java class = Bean
+
+3️⃣ Creating Beans in spring.xml
+<bean id="demo1" class="com.nit.Demo"/>
+<bean id="demo2" class="com.nit.Demo"/>
+
+
+✔ Same class → multiple objects
+✔ Each <bean> = one object
+
+4️⃣ Setter Injection (Primitive / String)
+<bean id="demo" class="com.nit.Demo">
+    <property name="id" value="1"/>
+    <property name="name" value="Manoj"/>
+</bean>
+
+Flow
+
+Object created
+
+setId(1)
+
+setName("Manoj")
+
+✔ Optional dependency
+✔ Flexible
+
+5️⃣ Constructor Injection (Primitive / String)
+<bean id="demo" class="com.nit.Demo">
+    <constructor-arg index="0" value="2"/>
+    <constructor-arg index="1" value="Nithin"/>
+</bean>
+
+
+✔ Mandatory dependency
+✔ Object fully initialized
+
+6️⃣ Object (Reference) Injection
+Step 1: Dependent Class
+package com.nit;
+
+public class Address {
+
+    private String city;
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCity() {
+        return city;
+    }
+}
+
+Step 2: Target Class
+package com.nit;
+
+public class Demo {
+
+    private int id;
+    private String name;
+    private Address address;
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public void show() {
+        System.out.println(id + " " + name + " " + address.getCity());
+    }
+}
+
+Step 3: spring.xml (Setter Reference Injection)
+<bean id="addr" class="com.nit.Address">
+    <property name="city" value="Hyderabad"/>
+</bean>
+
+<bean id="demo" class="com.nit.Demo">
+    <property name="id" value="1"/>
+    <property name="name" value="Manoj"/>
+    <property name="address" ref="addr"/>
+</bean>
+
+Rule
+
+value → primitives
+
+ref → object
+
+7️⃣ Constructor Reference Injection
+<bean id="addr" class="com.nit.Address">
+    <property name="city" value="Bangalore"/>
+</bean>
+
+<bean id="demo" class="com.nit.Demo">
+    <constructor-arg index="0" value="2"/>
+    <constructor-arg index="1" value="Nithin"/>
+    <constructor-arg index="2" ref="addr"/>
+</bean>
+
+8️⃣ Single Interface → Multiple Implementations
+Interface
+package com.nit;
+
+public interface PaymentService {
+    void pay();
+}
+
+Implementation 1
+public class CardPayment implements PaymentService {
+    public void pay() {
+        System.out.println("Payment using Card");
+    }
+}
+
+Implementation 2
+public class UpiPayment implements PaymentService {
+    public void pay() {
+        System.out.println("Payment using UPI");
+    }
+}
+
+Dependent Class
+public class PaymentProcessor {
+
+    private PaymentService paymentService;
+
+    public void setPaymentService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    public void process() {
+        paymentService.pay();
+    }
+}
+
+Manual Injection (No autowire)
+<bean id="card" class="com.nit.CardPayment"/>
+<bean id="upi" class="com.nit.UpiPayment"/>
+
+<bean id="processor" class="com.nit.PaymentProcessor">
+    <property name="paymentService" ref="upi"/>
+</bean>
+
+
+✔ Loose coupling
+✔ Runtime flexibility
+
+9️⃣ autowire (Automatic Injection)
+autowire="byName"
+<bean id="paymentService" class="com.nit.CardPayment"/>
+
+<bean id="processor" class="com.nit.PaymentProcessor"
+      autowire="byName"/>
+
+
+✔ Bean id = property name
+
+autowire="byType" (Problem Case)
+<bean class="com.nit.CardPayment"/>
+<bean class="com.nit.UpiPayment"/>
+
+<bean id="processor" class="com.nit.PaymentProcessor"
+      autowire="byType"/>
+
+
+❌ Error: Multiple beans of same type
+
+🔟 primary (Solution for Multiple Beans)
+<bean id="card" class="com.nit.CardPayment" primary="true"/>
+<bean id="upi" class="com.nit.UpiPayment"/>
+
+<bean id="processor" class="com.nit.PaymentProcessor"
+      autowire="byType"/>
+
+
+✔ Spring injects primary bean
+
+autowire="constructor" + primary
+<bean id="upi" class="com.nit.UpiPayment" primary="true"/>
+<bean id="card" class="com.nit.CardPayment"/>
+
+<bean id="processor" class="com.nit.PaymentProcessor"
+      autowire="constructor"/>
+
+🔑 FINAL INTERVIEW SUMMARY
+Injection Types
+Type	Use
+Setter	Optional dependency
+Constructor	Mandatory dependency
+autowire Modes
+Mode	Rule
+byName	Bean id = property name
+byType	Only one bean
+constructor	Matches constructor args
+primary
+
+Resolves ambiguity
+
+Used when multiple beans of same type exist
+
+⭐ One-Line Interview Answer
+
+Spring IoC creates and injects objects automatically, promoting loose coupling using interfaces, autowiring, and primary beans.

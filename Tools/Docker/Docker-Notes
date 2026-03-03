@@ -1,0 +1,162 @@
+Why Docker Exists?
+==================
+Because if we developed an application if we are giving this application access to our newly joined employee or QA team,he must and shd install same java versions,sql versions and all what exaclty we are using for that project otherwise may they will get errors,our application will not run,so  downloading manually application required tools from outside and mainting versions are so difficult.
+
+What is docker?
+===============
+Docker is a tool that allows you to package your application and its entire environment into one unit.
+
+
+Docker Architecture?
+====================
+Docker CLI--->to perform docker options like docker pull 
+Docker Registry->to push our image or container to docekr registry so other can able to pull from here
+
+Docker Commands 
+===============
+download image: docker pull <imagename>
+
+Check Version : docker --version
+
+Running Containers: docker ps
+
+List containers which are present: docker ps -a 
+
+Stop Container : docker stop <container Id>
+
+Start Container :docker start <container Id>
+
+Remove all stopped Containers: docker container prune
+
+Create and run a new container from an image: docker run
+
+Execute a command in a running container: docker exec
+
+
+Build an image from a Dockerfile: docker build
+
+Download an image from a registry: docker pull
+
+Upload an image to a registry: docker push
+
+List images: docker images
+
+Authenticate to a registry: docker login
+
+Log out from a registry: docker logout
+
+Search Docker Hub for images: docker search
+
+Show the Docker version information: docker version
+
+Display system-wide information: docker info
+
+To interactive docker images (ex for ubantu image): docker run -it ubantu
+
+to exit from image: exit 
+
+
+Containers Spring boot application
+==================================
+
+what is docker file?
+--------------------
+A Docker file is a text file that contain step by step instruction to create docker image.
+
+.Base Image
+.Working Directory
+.Copy Jar
+.Expost Port
+
+1.Create Docker file in spring boot application
+-----------------------------------------------
+
+From eclipse-tumerin
+WORKDIR /app
+COPY targer/<project jar> app.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","app.jar"]
+
+2.Create Image for this Docker file in Terminal
+-----------------------------------------------
+docker build -t <name of the image>:<version> .
+
+<!-- this is port mapping and running image
+
+docker run -p 8080:8080 <name of the imgae>:<version>
+
+if have environtment variable we will pass like this below
+
+docker run -d -e SERVER_PORT=9090 -p 8080:9090 <name of the imgae>:<version>
+ --> 
+ 
+ this part we can skip with belwo eclipse configuration
+
+by using eclipse we can configure easy
+-------------------------------------
+
+click on edit configuration there we have + symbol on left above,there we have docker file and docker image,docker file is used to run docker image on container and docker images is used to pull it and run the container,there we have  option to set the port and env variables also.
+
+
+Docker Volume
+==============
+Basically if we run image everytime it will create new container so ,we will loose our previous container data ,so if want mantain same data for all containers wee need to use volumes.
+
+
+
+run image with volume
+-----------------------------
+
+docker run -d -v <name of the volume>:/app -e SERVER_PORT=9090 -p 8080:9090 <name of the imgae>:<version>
+
+if we want create 2 containers stop first one and run again same above command.
+
+
+See the volumes
+---------------
+docker volume ls
+
+Remove Docker Volume
+-------------------
+docker volume rm <name of the volume>
+
+
+Docker Compose
+==============
+Docker compose allows us to define and run multi-container docker applications using a yml file.
+version:latest
+
+services:
+  app:
+   image: docker-demo:1.0
+   ports:
+     - 9090:9090
+   environment:
+     - SERVER_PORT: 9090
+   volumes: 
+     - names-volume:/app
+
+volumes: 
+  names-volume
+
+  to run this compose yml file we have to run below command
+-------------------------------------------------------------
+
+docker compose up
+
+  to stop this compose yml file we have to run below command
+-------------------------------------------------------------
+
+docker compose down
+
+
+
+Docker Networking
+=================
+per suppose if our springboot running on some different container and Database running on different container so if we want communicate to containere we will register both in same network.
+
+To see the docker networks
+--------------------------
+docker network ls 
+
+

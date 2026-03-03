@@ -1,3 +1,0 @@
-JAVA-NOTES
-----------
-Java
