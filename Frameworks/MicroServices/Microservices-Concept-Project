@@ -1,0 +1,870 @@
+# Java Microservices Development Notes
+
+==================================================
+
+# Topics Covered
+-----------------
+
+1. Monolithic Architecture
+2. Microservices Architecture & Why
+3. Service Registry (Discovery Service)
+4. Admin Server
+5. Zipkin Server
+6. APIs Development (Backend Microservices)
+7. Interservice Communication (Feign Client)
+8. API Gateway (Routing and Filters)
+9. Cloud Config Server
+10. Mini Project Architecture
+
+==================================================
+
+# 1. Monolithic Architecture
+
+==================================================
+
+Monolithic architecture is a **software design pattern where all functionalities of an application are developed and deployed as a single application**.
+
+All modules are tightly integrated and run in **one codebase and one deployment unit**.
+
+------------------------------
+## Example: Banking Application
+-------------------------------
+
+Modules inside same application
+
+• Net Banking
+• Mobile Banking
+• Credit Card Services
+• Debit Card Services
+• Customer Management
+• Transactions
+
+===================================
+## Monolithic Architecture Diagram
+===================================
+
+```
+                +-----------------------+
+                |     Client / User     |
+                +----------+------------+
+                           |
+                           v
+                +-----------------------+
+                |   Monolithic App      |
+                |-----------------------|
+                | Net Banking Module    |
+                | Mobile Banking Module |
+                | Credit Card Module    |
+                | Debit Card Module     |
+                | Customer Module       |
+                +-----------+-----------+
+                            |
+                            v
+                      +-----------+
+                      | Database  |
+                      +-----------+
+```
+
+All modules run inside **one application**.
+
+==================================================
+
+# Challenges With Monolithic Architecture
+
+==================================================
+
+----------------------
+## 1. Tight Coupling
+----------------------
+
+All modules are connected together.
+
+If we modify one module it may impact other modules.
+
+Example
+
+```
+Change in Credit Card module
+        ↓
+May impact Payment module
+```
+
+-------------------------
+## 2. Deployment Issues
+-------------------------
+
+If we make a small change, we must deploy the **entire application**.
+
+Example
+
+```
+Bug in Debit Card module
+→ Need to redeploy whole Banking application
+```
+
+---------------------------
+## 3. Scalability Issues
+---------------------------
+
+We cannot scale individual modules.
+
+Example
+
+```
+High traffic on Payments
+
+But we must scale entire application
+instead of scaling only Payment module
+```
+
+----------------------------
+## 4. Maintenance Complexity
+----------------------------
+
+As application grows
+
+• Codebase becomes very large
+• Hard to understand
+• Hard to maintain
+
+---------------------------
+## 5. Technology Dependency
+---------------------------
+
+Whole application must use the **same technology stack**.
+
+Example
+
+```
+Backend → Java
+Frontend → JSP
+```
+
+Introducing new technologies becomes difficult.
+
+-------------------
+## 6. Server Burden
+-------------------
+
+Entire application runs on **single server**.
+
+Heavy load can slow down system.
+
+----------------------------
+## 7. Single Point of Failure
+-----------------------------
+
+If the application crashes, the **entire system stops**.
+
+Example
+
+```
+Payment module failure
+→ Whole banking system down
+```
+
+==================================================
+
+# 2. Microservices Architecture
+
+==================================================
+
+Microservices is an **architectural design pattern where an application is divided into multiple small independent services**.
+
+Each service:
+
+• Handles a specific business functionality
+• Runs independently
+• Communicates via APIs
+
+-------------------
+## Important Points
+------------------
+
+Microservices is:
+
+• NOT a technology
+• NOT a framework
+• NOT a programming language
+
+Microservices **is an Architectural Design Pattern**.
+
+It can be implemented using:
+
+• Java
+• Python
+• NodeJS
+• Go
+• .NET
+
+=======================================
+
+## Microservices Architecture Diagram
+
+=======================================
+
+```
+                +-------------------+
+                |       Client      |
+                +---------+---------+
+                          |
+                          v
+                 +------------------+
+                 |   API Gateway    |
+                 +--------+---------+
+                          |
+       --------------------------------------------
+       |            |            |                |
+       v            v            v                v
+
++--------------+ +--------------+ +--------------+ +--------------+
+| User Service | | Order Service| | Payment Serv | | Product Serv |
++--------------+ +--------------+ +--------------+ +--------------+
+       |               |                |               |
+       v               v                v               v
+
+   +--------+      +--------+      +--------+      +--------+
+   |  DB    |      |  DB    |      |  DB    |      |  DB    |
+   +--------+      +--------+      +--------+      +--------+
+```
+
+Each service:
+
+• Independent
+• Own database
+• Independent deployment
+
+==================================================
+
+# Advantages of Microservices Architecture
+
+==================================================
+
+---------------------
+## 1. Loose Coupling
+---------------------
+
+Services are independent.
+
+Failure in one service does not affect others.
+
+Example
+
+```
+Payment Service down
+→ User Service still works
+```
+
+---------------------------
+## 2. Reduced Server Burden
+---------------------------
+
+Services are distributed across servers.
+
+Load is balanced.
+
+-----------------------
+## 3. Easy Maintenance
+-----------------------
+
+Each service has **small codebase**.
+
+Developers can maintain easily.
+
+--------------------------------
+## 4. No Single Point of Failure
+--------------------------------
+
+If one service fails
+
+Other services continue working.
+
+------------------
+## 5. Scalability
+------------------
+
+We can scale **only the required service**.
+
+Example
+
+```
+High traffic on Payment Service
+
+Scale only Payment Service
+```
+
+----------------------------------
+## 6. Technology Independence
+----------------------------------
+
+Each microservice can use different technology.
+
+Example
+
+```
+User Service → Java
+Payment Service → NodeJS
+Notification Service → Python
+```
+
+----------------------------------
+## 7. Faster Development & Delivery
+----------------------------------
+
+Multiple teams can work on different services simultaneously.
+
+==================================================
+
+# Challenges With Microservices Architecture
+
+==================================================
+
+---------------------
+## 1. Bounded Context
+----------------------
+
+Deciding
+
+• How many microservices
+• Which functionality belongs to which service
+
+Requires strong domain understanding.
+
+---------------------------
+## 2. Repeated Configuration
+---------------------------
+
+Every microservice requires configuration such as
+
+• Database
+• Security
+• Kafka
+• Logging
+• Monitoring
+
+Configuration duplication may occur.
+
+-------------------------=
+## 3. Service Visibility
+-------------------------
+
+In large systems it becomes difficult to know
+
+```
+Which service provides which functionality
+```
+
+To solve this we use
+
+• Service Registry
+• Documentation
+• Monitoring tools
+
+==================================================
+
+# Microservices Supporting Components
+
+==================================================
+
+There is **no fixed architecture** for microservices.
+
+Architecture can be customized based on project requirements.
+
+Common components used
+
+• Service Registry (Eureka)
+• Admin Server
+• Zipkin Server
+• Config Server
+• Kafka Server
+• Redis Server
+• Feign Client
+• API Gateway
+
+Note: **All components are not mandatory.**
+
+==================================================
+
+# Typical Spring Boot Microservices Architecture
+
+==================================================
+
+```
+                        +------------------+
+                        |      Client      |
+                        +---------+--------+
+                                  |
+                                  v
+                         +----------------+
+                         |   API Gateway  |
+                         +--------+-------+
+                                  |
+                     -----------------------------
+                     |             |             |
+                     v             v             v
+
+              +-----------+  +-----------+  +-----------+
+              | User MS   |  | Order MS  |  | Payment MS|
+              +-----+-----+  +-----+-----+  +-----+-----+
+                    |              |              |
+                    v              v              v
+               +--------+     +--------+     +--------+
+               |  DB    |     |  DB    |     |  DB    |
+               +--------+     +--------+     +--------+
+
+                     ↑
+                     |
+             +----------------+
+             | ServiceRegistry|
+             |    (Eureka)    |
+             +----------------+
+
+             +----------------+
+             | Config Server  |
+             +----------------+
+
+             +----------------+
+             |  Zipkin Server |
+             +----------------+
+
+             +----------------+
+             | Admin Server   |
+             +----------------+
+```
+
+==================================================
+
+# Microservices Infrastructure Flow
+
+==================================================
+
+Client
+↓
+API Gateway
+↓
+Service Registry (Discover Services)
+↓
+Microservices
+↓
+Database
+
+==================================================
+## Additional Supporting Components
+
+==================================================
+Config Server → Centralized configuration
+Zipkin → Distributed tracing
+Admin Server → Monitoring
+Kafka → Event streaming
+Redis → Caching
+Feign Client → Service-to-service communication
+
+
+==================================================
+## Inter Service Communication
+==================================================
+
+One Service API will communicate with another Service API is called  Inter Service Communication
+
+===================
+
+# Service Registry
+
+====================
+
+Service Registry is used to maintain **information about all microservices in a centralized location**.
+
+It stores details such as:
+
+* Service Name
+* Service Instance URL
+* Service Status
+* Service Health
+* Service Port
+
+This helps services **discover and communicate with each other dynamically**.
+
+Service Registry is also called **Service Discovery**.
+
+In Spring Boot Microservices, we commonly use **Eureka Server** as the Service Registry.
+
+Eureka Server is provided by the **Spring Cloud** library.
+
+It also provides a **dashboard UI** where we can see all registered microservices and their status.
+
+
+------------------------------
+## How Service Registry Works
+------------------------------
+1. When a microservice starts, it **registers itself with the Eureka Server**.
+2. Eureka Server stores the service details.
+3. Other services or API Gateway can **discover services using Eureka**.
+4. Services can communicate without knowing the exact IP address.
+
+Example Flow
+
+User Service → Register → Eureka Server
+Order Service → Register → Eureka Server
+
+API Gateway → Ask Eureka → Where is User Service?
+Eureka → Returns Service URL
+
+---------------------------------
+## Service Registry Architecture
+------------------------------
+```
+            +------------------+
+            |   Eureka Server  |
+            | Service Registry |
+            +---------+--------+
+                      |
+   -----------------------------------------
+   |                    |                  |
+   v                    v                  v
+```
+
++-----------+        +-----------+       +-----------+
+| User MS   |        | Order MS  |       | Payment MS|
++-----------+        +-----------+       +-----------+
+
+Each service registers itself with Eureka.
+
+================
+
+# Admin Server
+
+================
+
+Admin Server is used to **monitor and manage all microservices from a single dashboard**.
+
+It provides a **centralized monitoring UI** where we can see the status of all running services.
+
+In Spring Boot microservices, **Spring Boot Admin** is commonly used.
+
+It collects monitoring information using **Spring Boot Actuator**.
+
+-----------------------------
+## Why Admin Server is Used
+------------------------------
+In microservices architecture, there may be **many services running simultaneously**.
+
+Instead of checking each service individually, Admin Server allows us to **monitor everything in one place**.
+
+----------------------------------------
+## Information Available in Admin Server
+------------------------------------------
+
+Admin Server can display the following information:
+
+--------------------
+### 1. Health Check
+---------------------
+
+Shows whether the service is running properly.
+
+Example
+
+UP
+DOWN
+OUT_OF_SERVICE
+
+--------------------------------
+### 2. Configuration Properties
+--------------------------------
+
+Displays configuration values loaded by the microservice.
+
+Example
+
+Database URL
+Kafka Configuration
+Redis Configuration
+Application Properties
+
+--------------------
+### 3. Beans Loaded
+--------------------
+
+Shows all **Spring Beans** loaded in the application.
+
+Example
+
+Service Beans
+Controller Beans
+Repository Beans
+Configuration Beans
+
+--------------------
+### 4. URL Mappings
+--------------------
+
+Displays all available **API endpoints**.
+
+Example
+
+/users
+/orders
+/products
+/payments
+
+------------------------
+### 5. Logger Management
+-------------------------
+
+We can **change log levels dynamically** without restarting the application.
+
+Example
+
+INFO
+DEBUG
+ERROR
+TRACE
+WARN
+
+-----------------------------
+## Admin Server Architecture
+------------------------------
+```
+    +----------------------+
+    |    Admin Server      |
+    |   Monitoring UI      |
+    +----------+-----------+
+               |
+  --------------------------------
+  |              |               |
+  v              v               v
+```
+
++-----------+   +-----------+   +-----------+
+| User MS   |   | Order MS  |   | Payment MS|
+| Actuator  |   | Actuator  |   | Actuator  |
++-----------+   +-----------+   +-----------+
+
+Admin Server collects monitoring data from **Actuator endpoints of each microservice**.
+
+=================
+
+## Zipkin Server
+
+=================
+
+Zipkin Server is used for distributed tracing in microservices architecture.
+
+When a request passes through multiple microservices, Zipkin helps us track the complete flow of that request.
+
+It helps answer questions like:
+
+• How much time is taken to process a request
+• Which microservice is taking more time
+• How many microservices are involved in processing a request
+• Where exactly the request failed
+
+Zipkin provides a beautiful web UI dashboard to visualize request flow across services.
+
+Zipkin Distributed Tracing Flow
+
+Client Request
+↓
+API Gateway
+↓
+Service A
+↓
+Service B
+↓
+Service C
+↓
+Database
+
+Zipkin records the entire request journey and displays timing for each service.
+
+Zipkin Architecture
+            +--------------------+
+            |     Zipkin Server  |
+            |  Distributed Trace |
+            +----------+---------+
+                       |
+    ----------------------------------------
+    |                |                     |
+    v                v                     v
+
++-----------+ +-----------+ +-----------+
+| Service A | -> | Service B | -> | Service C |
++-----------+ +-----------+ +-----------+
+
+Each service sends trace information to Zipkin.
+
+=================
+
+## Config Server
+
+================
+
+Config Server is used to externalize and centralize configuration properties of microservices.
+
+Instead of keeping configuration files inside each microservice, they are stored in a central configuration server.
+
+This helps separate:
+
+Application Code
+Application Configuration
+
+This makes microservices loosely coupled with configuration files.
+
+Why Config Server is Used
+
+In microservices architecture there may be many services.
+
+Without Config Server:
+
+Each service has its own application.properties or application.yml.
+
+With Config Server:
+
+All configuration is stored in one centralized location.
+
+Config Server Architecture
+            +----------------------+
+            |     Config Server    |
+            | Central Configuration|
+            +----------+-----------+
+                       |
+    ----------------------------------------
+    |                |                     |
+    v                v                     v
+
++-----------+ +-----------+ +-----------+
+| Service A | | Service B | | Service C |
++-----------+ +-----------+ +-----------+
+
+All microservices fetch configuration from Config Server at startup.
+
+Example configurations stored:
+
+Database configuration
+Kafka configuration
+Redis configuration
+Application properties
+Environment variables
+
+===============
+
+## Feign Client
+
+===============
+
+Feign Client is used for inter-service communication between microservices.
+
+When one microservice needs to call another microservice, we use Feign Client.
+
+Feign Client is provided by the Spring Cloud library.
+
+It is a declarative REST client, meaning we just define an interface and Spring automatically generates the REST call.
+
+Example
+
+Order Service needs to call Payment Service.
+
+Instead of writing REST template code manually, we use Feign Client.
+
+Example:
+
+@FeignClient(name = "PAYMENT-SERVICE")
+public interface PaymentClient {
+
+@GetMapping("/payment/{id}")
+Payment getPayment(@PathVariable Long id);
+
+}
+
+Feign automatically sends the request to the target microservice.
+
+Feign Client Architecture
+       +-------------+
+       | Order MS    |
+       +------+------+
+              |
+         Feign Client
+              |
+              v
+       +-------------+
+       | Payment MS  |
+       +-------------+
+
+This simplifies microservice-to-microservice communication.
+
+==============
+
+## API Gateway
+
+===============
+
+API Gateway acts as the single entry point for all client requests in a microservices architecture.
+
+Frontend applications cannot directly access microservices.
+
+Instead, all requests go through the API Gateway.
+
+API Gateway acts as a mediator between the frontend and backend microservices.
+
+Responsibilities of API Gateway
+
+• Routing requests to the correct microservice
+• Authentication and authorization
+• Request validation
+• Rate limiting
+• Logging and monitoring
+• Security enforcement
+
+Filters and Routing
+Filters
+
+Filters allow us to perform:
+
+Pre-processing (before request reaches service)
+
+Examples
+
+Authentication
+Request validation
+Logging
+
+Post-processing (after response)
+
+Examples
+
+Response modification
+Logging response
+Error handling
+
+Routing
+
+Routing is used to forward client requests to the correct backend microservice.
+
+Example
+
+Client Request → /orders → Order Service
+Client Request → /users → User Service
+
+API Gateway Architecture
+                 +-------------+
+                 |   Client    |
+                 +------+------+
+                        |
+                        v
+                 +-------------+
+                 | API Gateway |
+                 +------+------+
+                        |
+    ------------------------------------------
+    |                    |                   |
+    v                    v                   v
+
++-----------+ +-----------+ +-----------+
+| User MS | | Order MS | | Payment MS|
++-----------+ +-----------+ +-----------+
+
+All client requests first pass through the API Gateway.
+
+The API Gateway validates the request and forwards it to the appropriate microservice.
+
+It acts like a security guard for backend microservices.
