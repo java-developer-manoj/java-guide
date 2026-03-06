@@ -802,7 +802,7 @@ API Gateway acts as the single entry point for all client requests in a microser
 
 Frontend applications cannot directly access microservices.
 
-Instead, all requests go through the API Gateway.
+ all requests go through the API Gateway.
 
 API Gateway acts as a mediator between the frontend and backend microservices.
 
@@ -868,3 +868,489 @@ All client requests first pass through the API Gateway.
 The API Gateway validates the request and forwards it to the appropriate microservice.
 
 It acts like a security guard for backend microservices.
+
+
+=============================================================
+
+Steps To Develop Service Registry Application (Eureka Server)
+
+=============================================================
+
+1.Create Service Registry application With Below Dependency
+  
+  -Eureka Server(spring-cloud-starter-netflix-eureka-server)
+
+2.Configure @EnableEurekaServer annotation in springboot start class
+
+3.Configure below properites in application.yml
+
+   server:
+     port:8761 (if we register Service Registry Microservice 8761,our microservices(us,os,ps) will auto register with eureka server by default)
+
+4.spring cloud version (2025.0.1)     
+
+
+5.configure below properties in yml file
+
+  server :
+    port :8761
+
+Note-1:If "Service-Registry" project port is 8761 then clients can discover service-registry and will register automatically with service-registry
+
+Note-2:if service-registry running on any other port no then we have to register clients with service-registry manually.
+
+6.Once application started we can access eureka server dashboard using below url
+
+URL : http://localhost:8761/
+
+
+
+=============================================================
+
+Steps To Develop Spring Admin Server Application (Admin Server)
+
+=============================================================
+
+1.Create Springboot application with "admin-server" dependency
+    (select while creating project)
+
+2.Configure @EnableAdminServer annotation at start class
+
+3.Change port number(optional)
+
+4.Run the Springboot application
+
+5.Access application URL in browser (we can see admin server ui)
+
+6.Url to access the **Admin Server** given below.
+
+ URL: http://localhost:8080/
+
+
+===============================================================
+
+Steps To Develop Zipkin  Server Application (Zipkin Server)
+
+===============================================================
+
+1st Option to Download
+-----------------------
+
+1.Download Zipkin jar file from from internet below is the url
+
+URL :https://zipkin.io/pages/quickstart.html
+
+
+it will open dashboard go to below place and click on latest release it will download,if not download run that curl command in command line 
+
+
+ ## Java
+
+(If you have Java 17 or higher installed, the quickest way to get started is to fetch the **latest release:** as a self-contained executable jar:
+
+curl -sSL https://zipkin.io/quickstart.sh | bash -s
+)
+
+
+2.Run zipkin jar file by using below command
+   
+   java -jar <zipkin-jar-name>
+
+
+2nd Option to Download
+----------------------
+
+## Docker 
+run below command it will create container,opern docker desktop and run it or stop it.
+
+docker run -d -p 9411:9411 openzipkin/zipkin
+
+
+=>Zipkin server runs on port no 9411
+
+=>Access zipkin server dashboard 
+ URL: http://localhost:9411/
+
+
+===============================================================
+
+Steps To Develop Micro Services (ex:User Service,Product Service)
+
+=================================================================
+
+
+## User Service
+=================
+
+1.Create Springboot application with below dependencies
+
+   -erueka-discovery-client
+   -admin-client
+   -zipkin
+
+   -starter web
+   -devtools
+   -actuator
+   -openfeign
+
+2.Enable @EnableDiscoveryClient annotation at springboot start class
+
+3.Config below configuration in yml file
+
+spring:
+  application:
+    name: User-Service
+  boot:
+    admin:
+      client:
+        url: http://localhost:8080/
+server:
+  port: 8081
+eureka:
+   client:
+     service-url:
+       defaultZone: http://localhost:8761/erueka/ #manual registration for eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+      
+4.Create RestController class with Required method
+
+ Ex:-
+ <!-- package com.userservice.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class UserController {
+    @GetMapping("/getUser")
+    public String getUser() {
+        return "User Fetched Successfully!!";
+    }
+
+} -->
+
+
+## Product Service
+===================
+
+1.Create Springboot application with below dependencies
+
+   -erueka-discovery-client
+   -admin-client
+   -zipkin
+
+   -starter web
+   -devtools
+   -actuator
+
+
+
+2.Enable @EnableDiscoveryClient annotation at springboot start class
+
+3.Config below configuration in yml file
+
+spring:
+  application:
+    name: User-Service
+  boot:
+    admin:
+      client:
+        url: http://localhost:8080/
+server:
+  port: 8081
+eureka:
+   client:
+     service-url:
+       defaultZone: http://localhost:8761/erueka/ #manual registration for eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+      
+4.Create RestController class with Required method
+
+    Ex:-
+<!-- import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class ProductController {
+
+    @GetMapping("/getProduct")
+    public String getProduct() {
+        return "Product Fetched Successfully!!";
+    }
+} -->
+
+==============================================
+
+## Ways To Achieve Inter Service Communication
+
+==============================================
+
+# one service can communicate with another service is called inter service communication.
+
+# Provider 
+ ----------
+The service which is giving the services to other service is called Provider.
+
+# Consumer
+----------
+The service which is accessing the services from other services is called Consumer.
+
+
+# 3 Ways
+----------
+
+1.Rest Template
+2.Web Client
+3.Feign Client
+
+If we use Rest Template  or Web Client we need to hard code the url of other service, which are not recomanded way because for load balancing we will deploy services in 3,4 places we will get 3,4 url's for single microservice so it's not good approach , better to go with Feign Client.
+
+# Feign Client
+----------------
+By Using Feign Client we can establish the communication from one microservice to another microservice by using name of the micro service not by using url.
+
+1.add feign client dependency to our project(user service(consumer))
+2.@EnableFeignClients annotate on our main class(user service(consumer))
+3.Create one Interface like below in consumer service
+
+ackage com.userservice.controller;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@FeignClient("PRODUCT-SERVICE")
+public interface GetProductFeignClient {
+    @GetMapping("/getProduct")
+    public String getProduct();
+
+}
+
+4.Call this method from RestController class like below(user service(consumer))
+
+package com.userservice.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class UserController {
+
+    @Autowired
+    private GetProductFeignClient getProductFeignClient;
+
+    @GetMapping("/getProduct")
+    public String getProduct() {
+        String product = getProductFeignClient.getProduct();
+        return "User Service Called -> " + product;
+    }
+}
+
+so here we are calling product service /getProdcut api from user service.
+
+
+
+=========
+
+## Kafka
+
+=========
+
+=>It is used as  message broker.
+
+=>Distributing Streaming Platform
+
+=>It works based on Pub-Sub model.
+
+=================
+
+## Redis Server
+
+=================
+
+=>Redis is a cache server
+
+=>Redis Represents data in a key-value pair
+
+=>Redis is used reduce no.of db calls
+
+
+
+=================
+
+## Load Balancer
+
+=================
+
+# Problem Without Load Balance
+------------------------------
+
+=> If we deploy our application on single server,If So many Requests will come to our  our server,burden will increase on cpu so, response  delay happend and  our server will crash,so it is a single point of failure. and our application will not run.so this is not recommaned to deploy in single server.
+
+Single Server Disadvantages
+---------------------------
+Single Point of Failure – Server crash stops the whole application.
+
+High CPU Load – Too many requests overload the server.
+
+Slow Response – Requests take longer to process under heavy load.
+
+No Scalability – Hard to handle increasing traffic.
+
+Downtime Risk – Maintenance or failure makes the app unavailable.
+
+Performance Issues – Application slows down as load increases.
+
+# Load Balancer
+---------------
+=> Instead of deploying our application in single server ,we will deploy our applicaiton in multiple servers that is called load balancer.
+
+=> One Load Balancer will be available for our application,and all the servers will be register with load balancer,customer will send the request to the load balancer,then load balancer distribute the requests to all the servers which are running on our application in Round Robin Fashion.1st request will go the 1st server,2nd request will go the 2nd server,3rd request will go the 3rd server,
+
+Load Balancer Advantages
+------------------------
+
+Traffic Distribution – Requests are spread across multiple servers.
+
+Better Performance – Reduces load on individual servers.
+
+High Availability – Other servers handle traffic if one fails.
+
+Fault Tolerance – Prevents application downtime.
+
+Easy Scalability – New servers can be added easily.
+
+Faster Responses – Requests go to the least busy server.
+
+Health Monitoring – Detects and removes unhealthy servers.
+
+# Implementation Load Balancer
+------------------------------
+
+**Client Side Load Balancer**
+------------------------------
+
+=>Remove Port No from for which service we want load balancing(ex:Product Service(Producer))
+
+=>In order verify the port is changed or not print the port no from that service controller (ex:Product Service(Producer))
+Ex:
+package com.productservice.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+@RestController
+public class ProductController {
+
+    @Autowired
+    private Environment environment;
+
+    @GetMapping("/getProduct")
+    public String getProduct() {
+        return "Product Fetched Successfully!!"+"Port No -> "+"("+environment.getProperty("server.port")+")";
+    }
+
+
+}
+
+=>we have to run our Service with 3 or more Different port no's(Ex:Product Service (producer))
+
+=> Call the Producer Service service using FeignClient
+
+=>Feign client will ask the service registry for producer how many url's avaialble ,if we run on using 3 ports we have 3 diff url's,so Feign Client dont know which url to use,so In Feign Client one Concept called **Ribbon** it will Repeat the server callings,so instead of hitting all request to same server,it will  call one by one,for first request first server ,for second request second server for that third server,then repeat.
+
+=>In Feign Client only Ribbon will be there to maintaion Load Balancing.
+
+=>If we want load balancer for client side must and shd we have to use Feign Client only,With Rest Template and Web Client Load Balancer will not work.
+
+=>If want to Use Rest Template or Web Client Only we will create load balancer at **Server Side**(Ex:Consumer Side(user-service)) cloud will provide load balancer like azure or aws.
+
+=>**Server side Load Balancing** is good when we are deploy our project in cloud(AWS,Azure)
+
+
+==============================
+
+## API GATEWAY Implementation
+
+==============================
+
+1.Create Spring boot application with below dependency
+
+  -eureka lient
+  -cloud gateway
+  -devtools
+
+2.Configure @EnableDiscoveryClient annotation in Springboot start class.
+
+3.Configure Routings in application.yml file like below.
+
+
+spring:
+  application:
+    name: API-Gateway-Service
+  cloud:
+    gateway:
+      routes:
+      - id: user-service
+        uri: lb://USER-SERVICE
+        predicates:
+          - Path=/web/api/v1/user-service/**
+        filters:
+              - StripPrefix=4
+
+      - id: product-service
+        uri: lb://PRODUCT-SERVICE
+        predicates:
+          - Path=/web/api/v1/product-service/**
+        filters:
+          - StripPrefix=4
+  boot:
+    admin:
+      client:
+        url: http://localhost:8090/
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+management:
+  web:
+    exposure:
+      include: '*'
+
+server:
+  port: 9000
+
+4.Create filter to validate the incoming requests.
+
+ 5.Controller methods shd be like below in services(not in api gateway service)
+
+
+USER-SERVICE
+------------
+
+    @GetMapping("/getUser)
+    public String getUser() {
+        return "User Fetched Successfully!!";
+    }
+
+PRODUCT-SERVICE
+---------------
+
+@GetMapping("/getProduct)
+    public String getProduct() {
+        return "Product Fetched Successfully!!";
+    }
