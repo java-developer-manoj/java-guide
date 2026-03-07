@@ -1334,9 +1334,8 @@ management:
 server:
   port: 9000
 
-4.Create filter to validate the incoming requests.
 
- 5.Controller methods shd be like below in services(not in api gateway service)
+ 4.Controller methods shd be like below in services(not in api gateway service)
 
 
 USER-SERVICE
@@ -1354,3 +1353,250 @@ PRODUCT-SERVICE
     public String getProduct() {
         return "Product Fetched Successfully!!";
     }
+
+
+
+5.Create filter to validate the incoming requests.
+   
+  =>If request contain secret below header then it is valid request so process it
+    secret=Manoj@123
+
+  =>if above header is not present then it is invalid request ,don't process it.
+
+  => create MyFilter class like below
+
+  Myfilter
+  --------
+
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+
+@Component
+public class MyFilter implements GlobalFilter {
+
+    @override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+
+        System.out.println(" filter() - executed..... ");
+
+        ServerHttpRequest request = exchange.getRequest();
+        HttpHeaders headers = request.getHeaders();
+        Set‹String > keySet = headers.keySet();
+        if (!keySet.contains("Secret")) {
+            throw new RuntimeException("Invalid Request");
+        }
+        List‹String›list = headers.get("Secret");
+        if (!list.get(0).equals("Manoj@123")) {
+            throw new RuntimeException('Invalid Request");
+        }
+
+
+        return chain.filter(exchange);
+
+    }
+}
+
+
+========================
+
+## Cloud Config Server
+
+========================
+
+**Problem Without Config Server**
+---------------------------------
+=>We are Configuring our application config properties in application.properties or application.yml file.
+
+Ex:DB props,SMTP props,Kafka props,App messages etc...
+
+=>application.properties or application.yml file will be packaged with our application(it will be part of our app jar file)
+
+=>If we want to make changes in properties or yml file then we have to re-package our application and we have to re-deploy our application
+
+Note:If any changes required in config properties then we have to repeat the complete project build & deployment which is time consuming process.
+
+=>If multiple services having same properties like eureka configuration,we have to write same code in all service applictions.yml files,
+
+**Usage Of Config Server**
+---------------------------
+
+=>To avoid this problem,we have to separate our project source code and project config properties file.
+
+=>To centralize config properties from the application we can use **spring cloud config server**.
+
+=>Config Server is a part of Spring Cloud Library.
+
+Note:Application Config properties files we will maintain in git hub repo and config server will load them and will give to our application based on our application name.
+
+service-name: Config-Client-Service -->Config-Client-Service.yml
+
+
+=>Our Microservice will get the config properties from config server will load them from github repo.
+
+
+
+====================================
+
+## Develop Config Server Application
+
+====================================
+
+1.Create Git Repository and keep yml files required for microservices
+   Note:we should keep yml file name as application name
+
+Ex:-
+   service-name: Config-Client-Service -->Config-Client-Service.yml
+
+
+https://github.com/java-developer-manoj/configuration_properties  
+
+2.Create Spring boot application with below dependency
+
+  a)config server
+
+   <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-config-server</artifactId>
+		</dependency>
+
+   b)dev tools 
+
+3.Write @EnableConfigServer annotation at springboot start class.
+
+4.add below things in application.yml of our config-server-service
+
+  spring:
+  application:
+    name: Config-Service-Service
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/java-developer-manoj/configuration_properties
+server:
+  port : 8897
+
+5.Run our config server application
+
+
+====================================
+
+## Develop Config Client Application
+
+====================================
+
+1.Create Spring boot application with below dependency
+
+  a)config client
+
+   <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-config-client</artifactId>
+		</dependency>
+
+   b)dev tools 
+   c) web starter
+
+2.Create Rest Controller with required methods
+
+package com.config.controller;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class ConfigClientController {
+
+    @Value("${msg}")
+    private String msg;
+
+    @GetMapping("/")
+    public String getMessage() {
+        return msg;
+    }
+
+}
+
+
+
+3.Configure Config Server url in application.yml file like below
+
+spring:
+  application:
+    name: Config-Client-Service
+  config:
+    import: optional:configserver:http://localhost:8897
+
+server:
+  port: 7993
+
+
+4.Run our config client  application.
+
+5.But if change the values in git it will not reflect ,we need to re run our config server.
+
+6.So we have to do like below
+
+=>Configure @RefreshScope at @Rest Contoroller class 
+=>Enable actuator end point 'refresh'
+=>Send post request to actuator end point 'refresh' from postman.
+
+Ex:-application.yml
+-------------------
+
+spring:
+  application:
+    name: Config-Server-Service
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/java-developer-manoj/configuration_properties
+server:
+  port : 8897
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh
+
+
+Ex:Controller
+-------------
+
+package com.config.controller;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RefreshScope
+public class ConfigClientController {
+
+    @Value("${msg}")
+    private String msg;
+
+    @GetMapping("/")
+    public String getMessage() {
+        return msg;
+    }
+    
+}
+
+7.call this below api
+
+http://localhost:7993/actuator/refresh
+
+8.then call our actual api call
+
+http://localhost:7993/
+we will get new content or new values.
+
+
