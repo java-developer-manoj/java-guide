@@ -1,0 +1,593 @@
+=====================
+ ## AUTH-SERVICE
+=====================
+
+Dependencies
+-------------
+
+=> Add below dependencies
+=>Eureka Client,Admin Client,Config Client,Feign Client,Web,Data JPA,jwt related ,fly way dependencies,Actuator,Spring Security,Postgres,Lombok.
+
+Application.yml
+---------------
+
+=>Add Configuration like below in application.yml
+
+spring:
+  application:
+    name: Auth-Service
+
+  config:
+    import: optional:configserver:http://localhost:9121
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth_service
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+server:
+  port: 1111
+logging:
+  level:
+    org.flywaydb: DEBUG
+
+V1__create_user.sql Migration File
+-----------------------------------
+
+=>Create  migration schema like below
+
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL
+    );
+
+INSERT INTO users (name, email, password)
+VALUES
+    (
+        'manoj',
+        'manojmengani2@gmail.com',
+        '$2a$12$P1fpK/CXWSJarAhG7Smvo.zCvimTP5mPD.YlQI5MlC1irY7MqcciG'
+    );
+
+User Entity
+-----------
+
+package com.authservice.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    private String email;
+
+    private String password;
+}  
+
+User Repo
+---------
+
+package com.authservice.repository;
+
+import com.authservice.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+
+    Optional<User> findByEmail(String email);
+    Optional<User> findByName(String email);
+}
+
+SecurityConfig
+--------------
+
+
+package com.authservice.config;
+
+import com.authservice.service.impl.CustomUserDetailsServiceImpl;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        http.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/userRegister", "/generateToken", "/validateToken","/getUser","/","/getProduct").permitAll()
+                        .anyRequest().authenticated());
+        return http.build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new CustomUserDetailsServiceImpl();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+}
+
+CustomUserDetailsImpl
+---------------------
+
+package com.authservice.service.impl;
+
+import com.authservice.entity.User;
+import org.jspecify.annotations.Nullable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
+
+public class CustomUserDetailsImpl implements UserDetails {
+
+    private String name;
+    private String password;
+
+    public CustomUserDetailsImpl(User user) {
+        this.name = user.getName();
+        this.password = user.getPassword();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public @Nullable String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return name;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+}
+
+
+
+CustomUserDetailsServiceImpl
+----------------------------
+
+package com.authservice.service.impl;
+
+import com.authservice.entity.User;
+import com.authservice.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.Optional;
+
+public class CustomUserDetailsServiceImpl implements UserDetailsService {
+
+    @Autowired
+    private UserRepository repository;
+
+    @Override
+    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
+        Optional<User> user= repository.findByName(name);
+
+        return new CustomUserDetailsImpl(user.orElseThrow(()->new UsernameNotFoundException("User Not Found!!!")));
+    }
+}
+
+
+JwtServiceImpl
+---------------
+
+package com.authservice.service.impl;
+
+import com.authservice.service.JWTService;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Service;
+
+import java.security.Key;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+@Service
+public class JWTServiceImpl implements JWTService {
+
+    public static final String SECRET = "dGhpc0lzQWJhc2U2NFNhZmVTZWNyZXRLZXkxMjM=====================";
+
+    @Override
+    public String generateToken(String userName) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userName);
+    }
+
+    private String createToken(Map<String, Object> claims, String userName) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userName)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    private Key getSignKey() {
+        final byte[] decode = Decoders.BASE64.decode(SECRET);
+        return Keys.hmacShaKeyFor(decode);
+    }
+
+    @Override
+    public void validateToken(final String token) {
+       Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
+    }
+
+}
+
+
+
+
+
+AuthRequest
+-----------
+
+package com.authservice.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class AuthRequest {
+    private String name;
+    private String password;
+}
+
+
+AuthServiceImpl
+----------------
+package com.authservice.service.impl;
+
+import com.authservice.entity.User;
+import com.authservice.repository.UserRepository;
+import com.authservice.service.AuthService;
+import com.authservice.service.JWTService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AuthServiceImpl implements AuthService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JWTService jwtService;
+
+    @Override
+    public String saveUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+        return "User Created Successfully!!";
+    }
+
+    @Override
+    public String generateToken(String userName) {
+        return jwtService.generateToken(userName);
+    }
+
+    @Override
+    public void validateToken(String token) {
+        jwtService.validateToken(token);
+    }
+}
+
+AuthController
+--------------
+
+package com.authservice.controller;
+
+import com.authservice.dto.AuthRequest;
+import com.authservice.entity.User;
+import com.authservice.service.AuthService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class AuthController {
+
+    @Autowired
+    private AuthService authService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+
+
+    @GetMapping("/get")
+    public ResponseEntity<?> get() {
+
+        return ResponseEntity.ok("Auth Service!!");
+    }
+    @PostMapping("/userRegister")
+    public ResponseEntity<?> saveUser(@RequestBody  User user) {
+        final String msg = authService.saveUser(user);
+        return ResponseEntity.ok(msg);
+    }
+
+    @PostMapping("/generateToken")
+    public ResponseEntity<?> generateToken(@RequestBody AuthRequest authRequest) {
+        final Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getName(), authRequest.getPassword()));
+         String token=null;
+        if (authenticate.isAuthenticated()) {
+            token  = authService.generateToken(authRequest.getName());
+        }
+        else {
+            throw new RuntimeException("Invalid Password/Username");
+        }
+        return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("/validateToken")
+    public ResponseEntity<?> validateToken(@RequestParam("token") String  token) {
+        authService.validateToken(token);
+        return ResponseEntity.ok("Token is valid");
+    }
+
+
+}
+ 
+The above code if for what are the api's we want secure,what we don't want,and register the user,with encoded password and generate the token using HS256 signature,and also validate the token but this validation happened only after API gateway filter,because we are calling this gateway api from API filter.
+
+
+==============
+API GATEWAY
+==============
+
+We already Created API Gateway Still i will mention all the dependencies and all.
+
+Dependencies
+-------------
+=>API GateWay
+=>Eureka Client
+
+Application.yml
+
+spring:
+  application:
+    name: API-Gateway-Service
+  cloud:
+    gateway:
+      routes:
+      - id: user-service
+        uri: lb://USER-SERVICE
+        predicates:
+          - Path=/web/api/v1/user-service/**
+        filters:
+              - StripPrefix=4
+              - AuthenticationFilter
+
+      - id: product-service
+        uri: lb://PRODUCT-SERVICE
+        predicates:
+          - Path=/web/api/v1/product-service/**
+        filters:
+          - StripPrefix=4
+          - AuthenticationFilter
+
+      - id: auth-service
+        uri: lb://AUTH-SERVICE
+        predicates:
+          - Path=/web/api/v1/auth-service/**
+        filters:
+          - StripPrefix=4
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+
+WebClient
+=========
+
+package com.apigateway.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.client.WebClient;
+
+@Configuration
+public class WebClientConfig {
+
+    @Bean
+    public WebClient.Builder builder() {
+        return WebClient.builder();
+    }
+}
+
+
+RouteValidator
+---------------
+
+package com.apigateway.filter;
+
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.function.Predicate;
+
+@Component
+public class RouteValidator {
+
+    public static final List<String> openApiEndpoints = List.of(
+            "/userRegister",
+            "/generateToken",
+            "/validateToken",
+            "/getUser",
+            "/getProduct",
+            "/"
+    );
+
+    public Predicate<ServerHttpRequest> isSecured =request -> openApiEndpoints
+                    .stream()
+                    .noneMatch(uri -> request.getURI().getPath().contains(uri));
+}
+
+AuthenticationFilter
+--------------------
+package com.apigateway.filter;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
+
+@Component
+public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
+
+    @Autowired
+    private RouteValidator validator;
+
+    @Autowired
+    private WebClient.Builder webClientBuilder;
+
+    public AuthenticationFilter() {
+        super(Config.class);
+    }
+
+    @Override
+    public GatewayFilter apply(Config config) {
+
+        return (exchange, chain) -> {
+
+            System.out.println("Incoming Path: " + exchange.getRequest().getURI().getPath());
+            if (validator.isSecured.test(exchange.getRequest())) {
+
+                if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+                    throw new RuntimeException("Missing Authorization Header");
+                }
+
+                String authHeader =
+                        exchange.getRequest().getHeaders()
+                                .getFirst(HttpHeaders.AUTHORIZATION);
+
+                String token = null;
+
+                if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                    token = authHeader.substring(7);
+                }
+
+                try {
+
+                    webClientBuilder.build()
+                            .get()
+                            .uri("http://AUTH-SERVICE/validateToken?token=" + token)
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .block();
+
+                } catch (Exception e) {
+                    throw new RuntimeException("Unauthorized access");
+                }
+            }
+
+            return chain.filter(exchange);
+        };
+    }
+
+    public static class Config {
+    }
+}
+
+
+
+
