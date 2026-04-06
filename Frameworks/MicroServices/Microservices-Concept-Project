@@ -82,7 +82,6 @@ All modules are connected together.
 If we modify one module it may impact other modules.
 
 Example
-
 ```
 Change in Credit Card module
         ↓
@@ -477,7 +476,7 @@ Service Registry is used to maintain **information about all microservices in a 
 It stores details such as:
 
 * Service Name
-* Service Instance URL
+* Service Instance URL's
 * Service Status
 * Service Health
 * Service Port
@@ -1270,9 +1269,9 @@ public class ProductController {
 
 => Call the Producer Service service using FeignClient
 
-=>Feign client will ask the service registry for producer how many url's avaialble ,if we run on using 3 ports we have 3 diff url's,so Feign Client dont know which url to use,so In Feign Client one Concept called **Ribbon** it will Repeat the server callings,so instead of hitting all request to same server,it will  call one by one,for first request first server ,for second request second server for that third server,then repeat.
+=>Feign client will ask the service registry for producer how many url's avaialble ,if we run on using 3 ports we have 3 diff url's,so Feign Client dont know which url to use,so In Feign Client one Concept called **Robbin** it will Repeat the server callings,so instead of hitting all request to same server,it will  call one by one,for first request first server ,for second request second server for that third server,then repeat.
 
-=>In Feign Client only Ribbon will be there to maintaion Load Balancing.
+=>In Feign Client only Robbin will be there to maintaion Load Balancing.
 
 =>If we want load balancer for client side must and shd we have to use Feign Client only,With Rest Template and Web Client Load Balancer will not work.
 

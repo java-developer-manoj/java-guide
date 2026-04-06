@@ -1,0 +1,330 @@
+# SQL NOTES
+
+# DATA
+
+Data is raw information. It can be numbers, text, dates, or any meaningful values.
+
+---
+
+# SQL
+
+SQL (Structured Query Language) is used to communicate with relational databases.
+
+* SQL is case-insensitive (SELECT = select)
+* Used to store, retrieve, update, and manage data
+
+---
+
+# DBMS
+
+DBMS (Database Management System) is software that:
+
+* Stores data
+* Processes queries
+* Returns results
+
+Examples: MySQL, PostgreSQL
+
+---
+
+# SQL TYPES
+
+1. DDL (Data Definition Language)
+   Used to define structure
+   Commands: CREATE, ALTER, DROP, TRUNCATE
+
+2. DQL (Data Query Language)
+   Used to fetch data
+   Command: SELECT
+
+3. DML (Data Manipulation Language)
+   Used to modify data
+   Commands: INSERT, UPDATE, DELETE
+
+4. DCL (Data Control Language)
+   Used for permissions
+   Commands: GRANT, REVOKE
+
+5. TCL (Transaction Control Language)
+   Used for transactions
+   Commands: COMMIT, ROLLBACK, SAVEPOINT
+
+---
+
+# PRIMARY KEY
+
+* Uniquely identifies each record
+* Cannot be NULL
+* Cannot have duplicate values
+
+---
+
+# FOREIGN KEY
+
+* Refers to primary key of another table
+* Maintains relationship between tables
+
+Example:
+
+```sql id="7jw94f"
+create table classes(
+classes_id int primary key,
+classes_name varchar(100) not null,
+classes_subject_name varchar(100),
+teacher_id int,
+foreign key (teacher_id) references teacher(teacher_id)
+);
+```
+
+---
+
+# DATA TYPES
+
+| Data Type  | Description       | Example             |
+| ---------- | ----------------- | ------------------- |
+| INT        | Whole numbers     | 1, 100, -5          |
+| FLOAT      | Decimal numbers   | 12.5, 99.99         |
+| VARCHAR(n) | Variable text     | 'Hello', 'Amit'     |
+| CHAR(n)    | Fixed-length text | 'M', 'F'            |
+| DATE       | Date only         | 2025-06-26          |
+| TIMESTAMP  | Date and time     | 2025-06-26 08:30:00 |
+| BOOLEAN    | True/False        | TRUE, FALSE         |
+
+---
+
+# TABLE
+
+A table is a collection of rows and columns.
+
+---
+
+# COLUMN (FIELD)
+
+Represents an attribute of the data.
+
+---
+
+# ROW (RECORD)
+
+Represents a single entry in the table.
+
+---
+
+# CHAR vs VARCHAR
+
+char(n)
+
+* Fixed length
+* Adds extra spaces
+
+Example:
+Manoj -> [M][a][n][o][j][ ][ ][ ][ ][ ]
+
+varchar(n)
+
+* Variable length
+* Uses only required space
+
+Example:
+Manoj -> [M][a][n][o][j]
+
+---
+
+# QUERIES
+
+## CREATE DATABASE
+
+```sql id="0m8iqc"
+create database learning_postgres;
+```
+
+## CREATE TABLE
+
+```sql id="o0j4gi"
+create table student(
+student_id int primary key,
+student_name varchar(100) not null,
+student_group varchar(100),
+student_age int check(student_age > 3),
+student_gender char(1)
+);
+```
+
+## ADD COLUMN
+
+```sql id="vy6r8o"
+alter table student add column student_email varchar(100);
+```
+
+## RENAME COLUMN
+
+```sql id="knq9e5"
+alter table student rename column student_email to student_gmail;
+```
+
+## DROP COLUMN
+
+```sql id="trh1ye"
+alter table student drop column student_gmail;
+```
+
+## INSERT DATA
+
+```sql id="5snx3m"
+insert into student values
+(1,'Manoj','BSC',23,'M'),
+(2,'Arun','BTECH',27,'M');
+```
+
+## SELECT ALL
+
+```sql id="nb02n1"
+select * from student;
+```
+
+## UPDATE DATA
+
+```sql id="b2y1o7"
+update student set student_age = 30 where student_id = 1;
+```
+
+## DELETE ONE RECORD
+
+```sql id="46x2gl"
+delete from student where student_id = 1;
+```
+
+## DELETE ALL RECORDS
+
+```sql id="1syx2x"
+delete from student;
+```
+
+## SELECT SPECIFIC COLUMNS
+
+```sql id="fx5qsh"
+select student_id, student_name from student;
+```
+
+## ORDER BY
+
+```sql id="u9h5o2"
+select * from student order by student_age asc;
+select * from student order by student_age desc;
+```
+
+## DISTINCT
+
+```sql id="e5p0vd"
+select distinct student_name from student;
+```
+
+## COUNT
+
+```sql id="qgl2g5"
+select count(*) from student;
+```
+
+## AVERAGE
+
+```sql id="drjqm2"
+select avg(student_age) as average_age from student;
+```
+
+## MINIMUM
+
+```sql id="uyw32g"
+select min(student_age) as minimum_age from student;
+```
+
+## MAXIMUM
+
+```sql id="1nj1kj"
+select max(student_age) as maximum_age from student;
+```
+
+## SUM
+
+```sql id="v3d4dx"
+select sum(student_age) as sum_age from student;
+```
+
+---
+
+# JOINS
+
+Joins are used to combine data from multiple tables using a common column.
+
+---
+
+# TYPES OF JOINS
+
+1. INNER JOIN
+2. LEFT JOIN
+3. RIGHT JOIN
+4. FULL OUTER JOIN
+5. CROSS JOIN
+
+---
+
+# INNER JOIN
+
+Returns only matching records from both tables.
+
+# LEFT JOIN
+
+Returns all records from left table + matching from right table.
+If no match → NULL
+
+# RIGHT JOIN
+
+Returns all records from right table + matching from left table.
+If no match → NULL
+
+# FULL OUTER JOIN
+
+Returns all records from both tables.
+
+# CROSS JOIN
+
+Returns all possible combinations of rows.
+
+---
+
+# JOIN SUMMARY
+
+| Join Type       | Result                    |
+| --------------- | ------------------------- |
+| INNER JOIN      | Matching records only     |
+| LEFT JOIN       | All left + matching right |
+| RIGHT JOIN      | All right + matching left |
+| FULL OUTER JOIN | All records from both     |
+| CROSS JOIN      | All combinations          |
+
+---
+
+# VIEW
+
+A view is a virtual table created from a SELECT query.
+
+* Does not store data
+* Always shows latest data
+
+Example:
+
+```sql id="o5drpb"
+create view student_details as
+select student_id, student_name from student;
+```
+
+---
+
+# FINAL SUMMARY
+
+* SQL is used to interact with databases
+* Tables store data
+* Keys maintain relationships
+* Joins combine tables
+* Views simplify queries
+
+---
