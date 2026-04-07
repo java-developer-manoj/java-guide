@@ -1,21 +1,21 @@
 # SQL NOTES
 
 # DATA
-
+=========
 Data is raw information. It can be numbers, text, dates, or any meaningful values.
 
----
 
 # SQL
+=========
 
 SQL (Structured Query Language) is used to communicate with relational databases.
 
 * SQL is case-insensitive (SELECT = select)
 * Used to store, retrieve, update, and manage data
 
----
 
 # DBMS
+=========
 
 DBMS (Database Management System) is software that:
 
@@ -25,9 +25,9 @@ DBMS (Database Management System) is software that:
 
 Examples: MySQL, PostgreSQL
 
----
 
 # SQL TYPES
+===========
 
 1. DDL (Data Definition Language)
    Used to define structure
@@ -49,24 +49,25 @@ Examples: MySQL, PostgreSQL
    Used for transactions
    Commands: COMMIT, ROLLBACK, SAVEPOINT
 
----
+
 
 # PRIMARY KEY
+=============
 
 * Uniquely identifies each record
 * Cannot be NULL
 * Cannot have duplicate values
 
----
 
 # FOREIGN KEY
+=============
 
 * Refers to primary key of another table
 * Maintains relationship between tables
 
 Example:
 
-```sql id="7jw94f"
+
 create table classes(
 classes_id int primary key,
 classes_name varchar(100) not null,
@@ -74,11 +75,10 @@ classes_subject_name varchar(100),
 teacher_id int,
 foreign key (teacher_id) references teacher(teacher_id)
 );
-```
 
----
 
 # DATA TYPES
+=============
 
 | Data Type  | Description       | Example             |
 | ---------- | ----------------- | ------------------- |
@@ -90,27 +90,26 @@ foreign key (teacher_id) references teacher(teacher_id)
 | TIMESTAMP  | Date and time     | 2025-06-26 08:30:00 |
 | BOOLEAN    | True/False        | TRUE, FALSE         |
 
----
+
 
 # TABLE
-
+========
 A table is a collection of rows and columns.
 
----
 
 # COLUMN (FIELD)
-
+================
 Represents an attribute of the data.
 
----
 
 # ROW (RECORD)
+==============
 
 Represents a single entry in the table.
 
----
 
 # CHAR vs VARCHAR
+=================
 
 char(n)
 
@@ -128,19 +127,20 @@ varchar(n)
 Example:
 Manoj -> [M][a][n][o][j]
 
----
+
 
 # QUERIES
+=============
 
 ## CREATE DATABASE
+------------------
 
-```sql id="0m8iqc"
 create database learning_postgres;
-```
+
 
 ## CREATE TABLE
+------------------
 
-```sql id="o0j4gi"
 create table student(
 student_id int primary key,
 student_name varchar(100) not null,
@@ -148,162 +148,368 @@ student_group varchar(100),
 student_age int check(student_age > 3),
 student_gender char(1)
 );
-```
 
 ## ADD COLUMN
+------------------
 
-```sql id="vy6r8o"
 alter table student add column student_email varchar(100);
-```
+
 
 ## RENAME COLUMN
+------------------
 
-```sql id="knq9e5"
 alter table student rename column student_email to student_gmail;
-```
+
 
 ## DROP COLUMN
+------------------
 
-```sql id="trh1ye"
 alter table student drop column student_gmail;
-```
+
 
 ## INSERT DATA
+------------------
 
-```sql id="5snx3m"
+# insert single row  in to all columns of  table
+---------------------------------------------------
+INSERT INTO employee (emp_id, emp_name,emp_email,emp_company_id,emp_salary,emp_address,emp_commission)
+VALUES (10, 'manoj','manoj@gmail','DQ056',50000,'Hyderabad',4000);
+
+
+# insert single row  in to single column of  table
+---------------------------------------------------
+INSERT INTO employee ( emp_name)
+VALUES ( 'manoj');
+
+
+# insert multiple rows  in to all columns of  table
+---------------------------------------------------
+
 insert into student values
 (1,'Manoj','BSC',23,'M'),
 (2,'Arun','BTECH',27,'M');
-```
+
+# insert multiple rows into particular column of table
+------------------------------------------------------
+
+insert into employee(emp_commission) values (1500),(1400),(2000)
+
+
 
 ## SELECT ALL
+--------------
 
-```sql id="nb02n1"
 select * from student;
-```
+
 
 ## UPDATE DATA
+----------------
 
-```sql id="b2y1o7"
+
 update student set student_age = 30 where student_id = 1;
-```
+
 
 ## DELETE ONE RECORD
+--------------------
 
-```sql id="46x2gl"
 delete from student where student_id = 1;
-```
+
 
 ## DELETE ALL RECORDS
+--------------------
 
-```sql id="1syx2x"
 delete from student;
-```
 
 ## SELECT SPECIFIC COLUMNS
+---------------------------
 
-```sql id="fx5qsh"
 select student_id, student_name from student;
-```
+
 
 ## ORDER BY
-
-```sql id="u9h5o2"
+-----------
 select * from student order by student_age asc;
 select * from student order by student_age desc;
-```
+
 
 ## DISTINCT
+-----------
 
-```sql id="e5p0vd"
 select distinct student_name from student;
-```
+
 
 ## COUNT
+-----------
 
-```sql id="qgl2g5"
 select count(*) from student;
-```
+
 
 ## AVERAGE
+-----------
 
-```sql id="drjqm2"
 select avg(student_age) as average_age from student;
-```
+
 
 ## MINIMUM
+-----------
 
-```sql id="uyw32g"
 select min(student_age) as minimum_age from student;
-```
+
 
 ## MAXIMUM
+-----------
 
-```sql id="1nj1kj"
 select max(student_age) as maximum_age from student;
-```
+
 
 ## SUM
+-------
 
-```sql id="v3d4dx"
 select sum(student_age) as sum_age from student;
-```
 
----
+
 
 # JOINS
+=======
 
 Joins are used to combine data from multiple tables using a common column.
+in both table column names can be different but data type must be same and 
+primary key ,foreign key relationship also not compulsary.for retrival primary key ,foreign key  is optional but for inserting ,deleting,updating mandatory.
 
----
+
 
 # TYPES OF JOINS
-
+-----------------
+(EQUI JOIN)
 1. INNER JOIN
-2. LEFT JOIN
-3. RIGHT JOIN
-4. FULL OUTER JOIN
-5. CROSS JOIN
 
----
+(OUTER JOIN)
+2. LEFT OUTER JOIN
+3. RIGHT OUTER JOIN
+4. FULL OUTER JOIN
+
+(NON EQUI JOIN)
+5. CROSS JOIN /CARITSEAN JOIN
+6. SELF JOIN
+7. NATURAL JOIN
+
+# JOINS EXAMPLES
+
+===============
+
+Assume two tables:
+
+## EMPLOYEE TABLE
+-------------------
+
+| emp_id | emp_name | company_id |
+| ------ | -------- | ---------- |
+| 1      | Manoj    | C1         |
+| 2      | Arun     | C2         |
+| 3      | Ravi     | C1         |
+| 4      | Kiran    | C3         |
+
+## COMPANY TABLE
+-----------------
+
+| company_id | company_name |
+| ---------- | ------------ |
+| C1         | TCS          |
+| C2         | Infosys      |
+| C4         | Wipro        |
+
+
 
 # INNER JOIN
+------------
 
+Definition:
 Returns only matching records from both tables.
 
-# LEFT JOIN
+## QUERY
+------------
 
+SELECT e.emp_name, c.company_name
+FROM employee e
+INNER JOIN company c
+ON e.company_id = c.company_id;
+
+
+## RESULT
+----------
+
+| emp_name | company_name |
+| -------- | ------------ |
+| Manoj    | TCS          |
+| Arun     | Infosys      |
+| Ravi     | TCS          |
+
+## EXPLANATION
+---------------
+
+* Only matching company_id values are returned
+* Kiran is excluded (C3 not in company table)
+* Wipro is excluded (no employee)
+
+
+
+# LEFT JOIN
+------------
+
+Definition:
 Returns all records from left table + matching from right table.
-If no match → NULL
+
+## QUERY
+------------
+
+SELECT e.emp_name, c.company_name
+FROM employee e
+LEFT JOIN company c
+ON e.company_id = c.company_id;
+
+
+## RESULT
+------------
+
+| emp_name | company_name |
+| -------- | ------------ |
+| Manoj    | TCS          |
+| Arun     | Infosys      |
+| Ravi     | TCS          |
+| Kiran    | NULL         |
+
+## EXPLANATION
+---------------
+
+* All employees are shown
+* Kiran has no matching company → NULL
+* Keeps all LEFT table data
+
+
 
 # RIGHT JOIN
+------------
 
+Definition:
 Returns all records from right table + matching from left table.
-If no match → NULL
+
+
+
+
+## QUERY
+---------
+
+SELECT e.emp_name, c.company_name
+FROM employee e
+RIGHT JOIN company c
+ON e.company_id = c.company_id;
+
+
+## RESULT
+-----------
+
+| emp_name | company_name |
+| -------- | ------------ |
+| Manoj    | TCS          |
+| Arun     | Infosys      |
+| Ravi     | TCS          |
+| NULL     | Wipro        |
+
+## EXPLANATION
+--------------
+
+* All companies are shown
+* Wipro has no employee → NULL
+* Keeps all RIGHT table data
+
+
 
 # FULL OUTER JOIN
+-----------------
 
+Definition:
 Returns all records from both tables.
 
-# CROSS JOIN
+## QUERY
+----------
 
+
+SELECT e.emp_name, c.company_name
+FROM employee e
+FULL OUTER JOIN company c
+ON e.company_id = c.company_id;
+
+
+## RESULT
+---------
+
+| emp_name | company_name |
+| -------- | ------------ |
+| Manoj    | TCS          |
+| Arun     | Infosys      |
+| Ravi     | TCS          |
+| Kiran    | NULL         |
+| NULL     | Wipro        |
+
+## EXPLANATION
+---------------
+
+* Combines LEFT JOIN + RIGHT JOIN
+* Shows all employees and all companies
+* Missing matches are filled with NULL
+
+
+
+# CROSS JOIN
+------------
+
+Definition:
 Returns all possible combinations of rows.
 
+## QUERY
+--------
+
+SELECT e.emp_name, c.company_name
+FROM employee e
+CROSS JOIN company c;
+
+
+## RESULT (Example)
+--------------------
+
+| emp_name               | company_name |
+| ---------------------- | ------------ |
+| Manoj                  | TCS          |
+| Manoj                  | Infosys      |
+| Manoj                  | Wipro        |
+| Arun                   | TCS          |
+| Arun                   | Infosys      |
+| Arun                   | Wipro        |
+| ... (all combinations) |              |
+
+## EXPLANATION
+--------------
+
+* Every employee is paired with every company
+* Total rows = employees × companies
+* No condition used
+
+
+
+# FINAL UNDERSTANDING
+----------------------
+
+INNER JOIN   → Matching only
+LEFT JOIN    → All left + match
+RIGHT JOIN   → All right + match
+FULL JOIN    → Everything
+CROSS JOIN   → Multiplication of rows
+
 ---
 
-# JOIN SUMMARY
-
-| Join Type       | Result                    |
-| --------------- | ------------------------- |
-| INNER JOIN      | Matching records only     |
-| LEFT JOIN       | All left + matching right |
-| RIGHT JOIN      | All right + matching left |
-| FULL OUTER JOIN | All records from both     |
-| CROSS JOIN      | All combinations          |
-
----
 
 # VIEW
+=======
 
 A view is a virtual table created from a SELECT query.
 
@@ -312,19 +518,511 @@ A view is a virtual table created from a SELECT query.
 
 Example:
 
-```sql id="o5drpb"
+
 create view student_details as
 select student_id, student_name from student;
-```
+
+
+==========
+# ORDER BY
+===========
+
+
+Order By is used to sort the rows either in asc or desc order based on one more columns or expressions. and default sorting is asc.
+
+select <coloumns>
+from <table name>
+where <condition>
+order by <expression/column name> [asc/desc]
+
+
+ # Order by salary  desc
+------------------------
+
+select emp_name as names ,emp_salary as salary from employee order by emp_salary desc;
+
+# Order by salary  asc
+------------------------
+
+ - By default asc if we want to mention we can mention asc also
+
+select emp_name as names ,emp_salary as salary from employee order by emp_salary ;
+
+# Order By with  where class 
+----------------------------
+- Get the name and salary who salary is greater then avg with desc order.
+
+select emp_name as names ,emp_salary as salary from employee
+where (emp_salary>(select avg(emp_salary) from employee)) 
+order by emp_salary desc;
+
+# Order by Name  desc
+------------------------
+
+select emp_name as names ,emp_salary as salary from employee order by emp_name desc;
+
+# Order by Name  asc
+------------------------
+
+ - By default asc if we want to mention we can mention asc also
+
+select emp_name as names ,emp_salary as salary from employee order by emp_name;
+
+
+# Order by column  number 
+--------------------------
+- we can select by using column numbers but that number is not in the table that number is the  selected query column number,if we see in the below query that emp_name number is 1,and emp_salary number is 2, we can sort with 1 or 2,so if we use one it will sort based on emp_name and if we use 2 it will sort based on salary.
+
+select emp_name as names ,emp_salary as salary from employee order by 2 desc;
+
+
+
+# Order by commission with null values  asc
+----------------------------------------------
+=> If our table column contain nulls if we are sorting by asc order, values sort by asc,then null values come last 
+
+select emp_name as names ,emp_commission as commission from employee order by emp_commission asc;
+
+
+#  To Over come Above ,we have NULL FIRST 
+--------------------------------------------------------
+=> If our table column contain nulls if we are sorting by asc order we want to keep null in the first ,
+
+select emp_name as names ,emp_commission as commission from employee order by emp_commission asc NULLS first;
+
+
+
+==========
+# DISTINCT
+==========
+
+=> Distinct class eleminates the duplicates from the output of the select query
+
+* select distinct <column1>,<coumn2>... from <table name>;
+
+or 
+
+select  disctinct * from <table name>;
+
+=> we can write distinct on single column or multiple column or all columns.
+
+
+* select distinct <column> from <table name>;
+
+=> it will give the distinct values from that column
+
+
+* select distinct <column1>,<coumn2> from <table name>;
+
+=> it will give the distinct values from that column1 and coumn2 ,means it will check combination of two columns not individual
+
+Ex: -
+ emp_name emp_salary
+ manoj.    50000
+ arun.     50000
+ venkatesh 60000
+ manoj.     50000
+ arun.     60000
+
+ Result:
+ manoj.    50000
+ arun.     50000
+ venkatesh 60000
+ arun.     60000
+
+# distinct with single coloumn
+--------------------------------
+
+select distinct emp_name from employee;
+
+# distinct with multiple coloumn it will not distinct by single single column it will distinct by combination of mentioned columns
+------------------------------------------------------------------------------------
+
+select distinct emp_name,emp_address from employee;
+
+
+
+==========
+# GROUP BY
+==========
+
+Group By clause is used to group rows based on one or more columns/expressions to calculte aggregates like min,max,sum,avg,count for each group.
+
+select <coumns>
+from <table name>
+[where <cond>]
+group by <columns>
+[having <cond>]
+
+
+#  sum of the salary grouping  by department with asc order
+-----------------------------------------------------------
+
+select emp_deptartment_number as department, sum(emp_salary) as group_by_salary from
+employee group by emp_deptartment_number order by emp_deptartment_number asc
+
+# count the employee grouping by department with  asc order
+-----------------------------------------------------------
+
+select designation , count(*)  from
+employee group by designation order by designation asc
+
+
+# count the employees grouping by oining date year with  asc order
+-----------------------------------------------------------------
+
+select to_char(emp_joining_date,'yyyy') , count(*)  from
+employee group by to_char(emp_joining_date,'yyyy') order by to_char(emp_joining_date,'yyyy')  asc
+
+
+# WHERE vs HAVING
+==================
+
+
+WHERE                          vs                 HAVING
+filter rows                                  filter groups
+
+applied before group by                      applied after group by
+
+use where clause if condition                 use where clause if condition
+doesn't contain group by                      doesn't contain group by
+
+Note:-
+-----
+If condition contain group function use having clause,if condition not having group function use where clause
+
+
+Q)Dept wise total salary where dept no=1,2
+
+Ans) select emp_department_number as department , sum(emp_salary) from employee
+     where emp_department_number in(1,2) group by emp_department_number order by 1 asc;
+
+
+Flow:-
+from employee it will fetch all records or 1,2 departements,then it will group by department then it will ordered by department number.
+
+Note:-
+-------
+ Group functions are not allowed in Where clause ,group functions innosense min,max,avg,sum.These are allowed in select and having only.
+
+Below query will not work
+-------------------------
+select emp_department_number as department , sum(emp_salary) from employee
+     where emp_department_number in(1,2) and sum(emp_salary)>10000 group by emp_department_number order by 1 asc;
+
+Q)dept wise total salaries where dept no=1,2 and sum(sal)>10000
+
+Ans) select emp_department_number as department , sum(emp_salary) from employee
+     where emp_department_number in(1,2) group by emp_department_number having sum(emp_salary) > 10000 order by 1 asc;
+
+
+# ROLLUP and CUBE
+=================
+
+# ROLLUP
+---------
+=> Rollup is used to get the grand total and sub total of each department only ;
+
+Q)Grand total only
+
+Ans) select emp_department_number as department,sum(emp_salary) from employee group by rollup(emp_department_number)
+
+Q)Subtotal with Grand total of each department
+
+Ans) 
+
+SELECT 
+    emp_department_number AS department,
+    designation,
+    SUM(emp_salary) AS total_salary,
+FROM employee
+GROUP BY ROLLUP(emp_department_number, designation)
+ORDER BY department NULLS LAST;
+
+Extra Naming if we want for sub totals and grand totals:
+--------------------------------------------------------
+
+SELECT 
+    emp_department_number AS department,
+    designation,
+    SUM(emp_salary) AS total_salary,
+    CASE
+        WHEN GROUPING(emp_department_number) = 0 
+             AND GROUPING(designation) = 1 
+            THEN 'Dept Sub Total'
+        WHEN GROUPING(emp_department_number) = 1 
+             AND GROUPING(designation) = 1 
+            THEN 'Grand Total'
+    END AS sub_totals
+FROM employee
+GROUP BY ROLLUP(emp_department_number, designation)
+ORDER BY department NULLS LAST;
+
+
+
+# CUBE
+-------
+
+=> Cube is also used to get the grand total and sub total of each department and designation 
+
+Q)Grand total only
+
+Ans) select emp_department_number as department,sum(emp_salary) from employee group by cube(emp_department_number)
+
+Q)Subtotal with Grand total of each department and designation
+
+Ans)
+
+SELECT 
+    emp_department_number AS department,
+    designation,
+   
+FROM employee
+GROUP BY CUBE(emp_department_number, designation)
+ORDER BY department NULLS FIRST;
+
+Extra Naming if we want for sub totals and grand totals:
+-------------------------------------------------------
+
+select emp_department_number as department ,designation,
+sum(emp_salary), case when grouping(emp_department_number)=0
+                     and grouping(designation)=1 then 'Dept Sub Total'
+					 
+					 when grouping(emp_department_number)=1
+                     and grouping(designation)=0 then 'Designation Sub Total'
+					 
+					 when grouping(emp_department_number)=1
+                     and grouping(designation)=1 then 'Grand Total' end as sub_totals	
+					 from employee
+group by CUBE(emp_department_number,designation) order by 1 nulls last
+
+
+
+
+# ROLLUP AND CUBE WITH QUERY + OUTPUT + EXPLANATION
+
+==================================================
+
+We are using table:
+employee(emp_department_number, designation, emp_salary)
+
+
+
+# 1. ROLLUP
+
+===========
+
+## QUERY
+
+
+SELECT 
+    emp_department_number AS department,
+    designation,
+    SUM(emp_salary) AS total_salary
+FROM employee
+GROUP BY ROLLUP(emp_department_number, designation)
+ORDER BY department NULLS LAST;
+
+
+
+
+## OUTPUT (YOUR DATA)
+
+
+1  "JAVA DEVELOPER"     55000.5000
+1  "REACT DEVELOPER"    72000.7500
+1  NULL                 127001.2500
+
+2  "AEM DEVELOPER"      48000.2500
+2  "JAVA DEVELOPER"     66000.0000
+2  NULL                 114000.2500
+
+5  "DEVOPS ENGINEER"    55000.5000
+5  "REACT DEVELOPER"    162001.8000
+5  NULL                 217002.3000
+
+NULL NULL               458003.8000
+
+
+## EXPLANATION
+
+
+
+### Step 1: Detailed Data
+
+(department + designation)
+
+Example:
+1  JAVA → 55000
+1  REACT → 72000
+
+
+
+### Step 2: Department Total
+
+(department + NULL)
+
+Example:
+1  NULL → 127001
+
+Meaning:
+Total salary of department 1
+
+
+
+### Step 3: Grand Total
+
+(NULL, NULL)
+
+Example:
+NULL NULL → 458003
+
+Meaning:
+Total salary of all employees
+
+
+
+## FINAL UNDERSTANDING
+
+
+
+ROLLUP creates hierarchy:
+
+(dept, designation)
+→ (dept, NULL)
+→ (NULL, NULL)
+
+
+# 2. CUBE
+
+=========
+
+## QUERY
+
+
+SELECT 
+    emp_department_number AS department,
+    designation,
+    SUM(emp_salary) AS total_salary
+FROM employee
+GROUP BY CUBE(emp_department_number, designation)
+ORDER BY department NULLS FIRST;
 
 ---
 
-# FINAL SUMMARY
+## OUTPUT (YOUR DATA)
 
-* SQL is used to interact with databases
-* Tables store data
-* Keys maintain relationships
-* Joins combine tables
-* Views simplify queries
 
----
+1  "JAVA DEVELOPER"     55000.5000
+1  "REACT DEVELOPER"    72000.7500
+1  NULL                 127001.2500
+
+2  "AEM DEVELOPER"      48000.2500
+2  "JAVA DEVELOPER"     66000.0000
+2  NULL                 114000.2500
+
+5  "DEVOPS ENGINEER"    55000.5000
+5  "REACT DEVELOPER"    162001.8000
+5  NULL                 217002.3000
+
+NULL "JAVA DEVELOPER"   121000.5000
+NULL "AEM DEVELOPER"    48000.2500
+NULL "DEVOPS ENGINEER"  55000.5000
+NULL "REACT DEVELOPER"  234002.5500
+
+NULL NULL               458003.8000
+
+
+
+## EXPLANATION
+
+
+### Step 1: Same as ROLLUP
+
+* Detailed rows
+* Department totals
+
+
+### Step 2: Designation Totals (Extra in CUBE)
+
+Example:
+NULL "JAVA DEVELOPER" → 121000
+
+Meaning:
+Total salary of all Java Developers
+
+
+
+### Step 3: Grand Total
+
+NULL NULL → 458003
+
+
+## FINAL UNDERSTANDING
+
+
+
+CUBE creates all combinations:
+
+(dept, designation)
+(dept, NULL)
+(NULL, designation)
+(NULL, NULL)
+
+
+
+# DIFFERENCE
+
+============
+
+ROLLUP:
+
+* Only hierarchical totals
+* Less rows
+
+CUBE:
+
+* All combinations
+* More rows
+* More powerful for analytics
+
+
+
+# INTERVIEW ONE-LINER
+
+====================
+
+ROLLUP gives hierarchical totals, while CUBE gives all possible aggregations.
+
+
+# SUB QEURY and JOIN
+=====================
+
+# SUB QEURY
+------------
+
+When we want data from one table with condition based on another table we will use **SUB QUERY** .
+
+Q)Get the user from user table but only users whose city is hyderabad in address table
+
+Ans) select * from users where user_id=
+    (select user_id from address where city='Hyderabad')
+
+
+# JOIN
+--------
+When we want data from two or more tables  we will use **JOIN** .
+
+Q)Get the user from user table but only users whose city is hyderabad in address table
+
+Ans) select u.user_id,u.user_name,u.user_email from users u inner join address a
+     on u.user_id=a.user_id where a.city='Hyderabad'
+
+Q)Get the user and address from both tables but only users whose city is hyderabad in address table
+
+Ans) select u.user_id,u.user_name,u.user_email,a.address_id,
+     a.city,a.country from users u inner join address a
+     on u.user_id=a.user_id where a.city='Hyderabad'
+
+
+     
