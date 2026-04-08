@@ -1,0 +1,491 @@
+====================
+Circuit Breaker
+====================
+
+Definition
+----------
+Circuit Breaker is a fault tolerance design pattern used in microservices to prevent cascading failures.  
+When a service fails repeatedly, the circuit breaker stops calling that service temporarily and returns a fallback response.
+
+It acts like an electrical circuit breaker that stops the flow of current when a fault occurs.
+
+--------------------------------------------------
+
+Problem Without Circuit Breaker
+-------------------------------
+In microservices architecture, services depend on other services.
+
+Example
+Client -> API Gateway -> Product Service -> Review Service
+
+If the Review Service becomes slow or unavailable:
+
+• Product Service keeps waiting for response  
+• Threads remain blocked  
+• Response time increases  
+• System resources get exhausted  
+• Other services may also start failing  
+
+This situation can lead to cascading failures across the entire system.
+
+--------------------------------------------------
+
+Solution Using Circuit Breaker
+------------------------------
+Circuit Breaker monitors service calls and failure rates.
+
+If failures exceed a configured threshold:
+
+• Circuit Breaker opens  
+• Requests to the failing service are stopped  
+• Fallback response is returned immediately  
+• System remains stable  
+
+After a configured time, the circuit breaker allows a few test requests to check if the service has recovered.
+
+--------------------------------------------------
+
+Circuit Breaker States
+----------------------
+
+1. Closed State
+
+This is the normal state.
+
+• All requests are allowed to pass to the downstream service  
+• Success and failure of requests are recorded  
+• If failure rate exceeds the threshold, the circuit breaker moves to Open state  
+
+--------------------------------------------------
+
+2. Open State
+
+In this state, requests to the failing service are blocked.
+
+• No calls are sent to the downstream service  
+• Fallback response is returned immediately  
+• Prevents system overload  
+
+After a configured wait time, the circuit breaker moves to Half Open state.
+
+--------------------------------------------------
+
+3. Half Open State
+
+In this state, limited test requests are allowed.
+
+• If test requests succeed → circuit closes again  
+• If test requests fail → circuit returns to open state  
+
+This helps determine whether the service has recovered.
+
+--------------------------------------------------
+
+==========================================
+Resilience4j Circuit Breaker Configuration
+==========================================
+
+Configuration
+-------------
+resilience4j:
+  circuitbreaker:
+    instances:
+      reviews-service:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - feign.FeignException
+        ignoredExceptions:
+          - java.lang.IllegalArgumentException
+
+
+Overview
+--------
+This configuration defines a Circuit Breaker using Resilience4j for the service named "reviews-service".
+
+The circuit breaker monitors calls made to the Reviews Service.  
+If too many failures occur, it temporarily stops calling the service and returns a fallback response.
+
+
+Circuit Breaker Instance
+------------------------
+reviews-service
+
+This is the name of the circuit breaker instance.
+
+It is usually the same name used in the annotation:
+
+@CircuitBreaker(name = "reviews-service", fallbackMethod = "fallbackMethod")
+
+
+Property Explanations
+---------------------
+
+
+registerHealthIndicator
+-----------------------
+registerHealthIndicator: true
+
+This enables health monitoring for the circuit breaker.
+
+Spring Boot Actuator can show the circuit breaker status such as:
+- CLOSED
+- OPEN
+- HALF_OPEN
+
+
+slidingWindowSize
+-----------------
+slidingWindowSize: 10
+
+This defines the number of recent calls used to calculate the failure rate.
+
+Example:
+The circuit breaker will analyze the last 10 requests.
+
+
+minimumNumberOfCalls
+--------------------
+minimumNumberOfCalls: 5
+
+The circuit breaker will not calculate the failure rate until at least 5 requests are made.
+
+Example:
+If only 3 calls happened, the circuit breaker will not open yet.
+
+
+failureRateThreshold
+--------------------
+failureRateThreshold: 50
+
+This defines the percentage of failures required to open the circuit.
+
+Example:
+
+Total calls = 10  
+Failures = 5  
+
+Failure rate = 50%
+
+Since the threshold is 50%, the circuit breaker will open.
+
+
+waitDurationInOpenState
+-----------------------
+waitDurationInOpenState: 10s
+
+When the circuit breaker enters OPEN state, it waits 10 seconds before trying again.
+
+During these 10 seconds:
+- No calls are sent to the Reviews Service
+- Fallback response is returned immediately
+
+
+permittedNumberOfCallsHalfOpenState
+-----------------------------------
+permittedNumberOfCallsHalfOpenState: 3
+
+When the circuit breaker moves to HALF_OPEN state, it allows 3 test requests.
+
+If those 3 requests succeed:
+Circuit Breaker -> CLOSED
+
+If those requests fail:
+Circuit Breaker -> OPEN again
+
+
+automaticTransitionFromOpenToHalfOpenEnabled
+---------------------------------------------
+automaticTransitionFromOpenToHalfOpenEnabled: true
+
+This allows the circuit breaker to automatically move from OPEN state to HALF_OPEN after the wait time.
+
+
+eventConsumerBufferSize
+-----------------------
+eventConsumerBufferSize: 10
+
+This controls how many circuit breaker events are stored.
+
+Examples of events:
+- success
+- failure
+- state transition
+
+
+recordExceptions
+----------------
+recordExceptions:
+  - org.springframework.web.client.HttpServerErrorException
+  - java.io.IOException
+  - java.util.concurrent.TimeoutException
+  - feign.FeignException
+
+These exceptions will be counted as failures by the circuit breaker.
+
+Example:
+If a Feign client throws FeignException, the circuit breaker records it as a failure.
+
+
+ignoredExceptions
+-----------------
+ignoredExceptions:
+  - java.lang.IllegalArgumentException
+
+These exceptions are ignored and will not affect the circuit breaker.
+
+Example:
+If IllegalArgumentException occurs, the circuit breaker will not treat it as a failure.
+
+
+Request Flow Example
+--------------------
+
+Client
+  |
+  v
+API Gateway
+  |
+  v
+Product Service
+  |
+  v
+Circuit Breaker
+  |
+  v
+Reviews Service
+
+
+Normal Scenario
+---------------
+Circuit Breaker State = CLOSED
+
+Product Service calls Reviews Service normally.
+
+
+Failure Scenario
+----------------
+If 5 out of 10 requests fail:
+
+Failure Rate = 50%
+
+Circuit Breaker → OPEN
+
+
+Open State
+----------
+For the next 10 seconds:
+
+Requests are NOT sent to Reviews Service.
+
+Fallback response is returned.
+
+
+Half Open State
+---------------
+After 10 seconds:
+
+3 test requests are sent.
+
+If successful → CLOSED  
+If failed → OPEN again
+
+Example Microservice Flow
+-------------------------
+
+Client
+  |
+  v
+API Gateway
+  |
+  v
+Product Service
+  |
+  v
+Circuit Breaker
+  |
+  v
+Review Service
+
+If Review Service fails repeatedly:
+
+Circuit Breaker opens and Product Service returns fallback response instead of calling the failing service.
+
+--------------------------------------------------
+
+Advantages
+----------
+
+• Prevents cascading failures  
+• Improves system stability  
+• Reduces response time during failures  
+• Allows systems to recover automatically  
+• Provides fallback responses for better user experience
+
+--------------------------------------------------
+
+Real World Example
+------------------
+
+E-commerce Application
+
+Product Service -> fetch product details  
+Review Service -> fetch product reviews  
+
+If Review Service is down:
+
+Without Circuit Breaker
+Product Service waits and system becomes slow.
+
+With Circuit Breaker
+Product Service skips Review Service call and returns product details with empty reviews.
+
+--------------------------------------------------
+
+
+Dependencies
+------------
+we need to add these dependencies in Consumer-Service already consumer have other dependecies like eureka client,admin client all ,below are for circuit breaker
+
+=>Circuit Breaker Resilance4j
+
+<!-- Source: https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-circuitbreaker-resilience4j -->
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+    <version>5.0.1</version>
+    <scope>compile</scope>
+</dependency>
+
+
+=>Spring AOP
+
+<!-- Source: https://mvnrepository.com/artifact/org.springframework/spring-aop -->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-aop</artifactId>
+    <version>7.0.5</version>
+    <scope>compile</scope>
+</dependency>
+
+
+=>Actuator
+
+<!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-actuator -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+    <version>4.1.0-M2</version>
+    <scope>compile</scope>
+</dependency>
+
+application.yml
+--------------
+spring:
+  application:
+    name: Product-Service
+
+  config:
+    import: optional:configserver:http://localhost:9121
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/product-service
+    username: postgres
+    password: admin
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      reviews-service:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - feign.FeignException
+        ignoredExceptions:
+          - java.lang.IllegalArgumentException
+
+server:
+  port: ${SERVER_PORT}
+
+
+Service Implementaion like below
+--------------------------------
+
+package com.productservice.service.impl;
+
+import com.productservice.client.ReviewsClient;
+import com.productservice.dto.ProductWithReviewDTO;
+import com.productservice.dto.ReviewDTO;
+import com.productservice.entity.Products;
+import com.productservice.repository.ProductsRepository;
+import com.productservice.service.ProductService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
+
+@Service
+public class ProductServiceImpl implements ProductService {
+    @Autowired
+    private ProductsRepository productsRepository;
+
+    @Autowired
+    private ReviewsClient reviewsClient;
+
+    @Override
+    @CircuitBreaker(name = "REVIEWS-SERVICE", fallbackMethod = "getProductWithoutReviews")
+    public ProductWithReviewDTO getProductWithReviews(Long productId) {
+        final Products product = productsRepository.findById(productId).
+                                 orElseThrow(() -> new RuntimeException
+                                 ("Product Not Found with this Product Id"));
+        final List<ReviewDTO> reviews = reviewsClient.reviews(productId);
+
+        return ProductWithReviewDTO.builder()
+                .products(product).
+                totalReviews(reviews.size())
+                .message("Reviews Available")
+                .reviewAvailable(true)
+                .reviewDTOList(reviews)
+                .build();
+    }
+
+
+    @Override
+    public ProductWithReviewDTO getProductWithoutReviews(Long productId, Throwable ex) {
+        final Products product = productsRepository.findById(productId)
+                                .orElseThrow(() -> new RuntimeException
+                                 ("Product Not Found with this Product Id"));
+
+        return ProductWithReviewDTO.builder()
+                .products(product).totalReviews(0)
+                .message("Reviews Not Available !!Something Went Wrong Pleas Try Again!!!")
+                .reviewAvailable(false)
+                .reviewDTOList(Collections.emptyList())
+                .build();
+    }
+
+
+}

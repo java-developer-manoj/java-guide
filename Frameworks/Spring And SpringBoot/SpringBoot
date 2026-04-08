@@ -1,0 +1,1963 @@
+Why we will use springboot over springframework?
+================================================
+1.Dependency Resolution/Avoid Version conflict
+  ------------------------------------------
+we have to add more dependencies(spring core,spring context,spring web,spring webmvc,spring orm,spring hibernate) and also maintain the compatability versions for 
+all depenedencies in spring framework,but not required in springboot it will automatically
+take the  spring starter parent version for all dependencies,no need to mention separately.
+
+
+2.Avoid Additional Configuration
+  -------------------------------
+  Avoid Additional Configuration in application-content.xml because in spring framework we have to create datasource,session factory objects,and inject data soruce object 
+  in session factory and we have to create hibarnate object and also we have to create transactionmanager and inject session factory , alot of configuration we have to 
+  do in springframework.and also specially we need to tell to spring scan this packages,but in springboot no need create those object just mention properites values ,spring boot will
+  take care remaining things.
+
+3.Embedded Tomcat/jetty
+  --------------------
+  Springboot  is providing Embedded tomcat server to quickly deploy our jar or var file in tomcat server so we can able to test fastly
+
+4.Provide Production Ready Features such as health checks and metrics
+  -------------------------------------------------------------------
+  In springboot we have a separate dependency called actuator ,we can easily monitor our project in each environment,if we add dependency we will get some couple of endpoints
+  like /beans ,/health ,/metrics 
+
+
+What all springboot startes you have used or what all module you have worked on?
+ ===============================================================================
+1.springboot starter web(if we want to use web mvc application)
+2.springboot starter data JPA(if we want integrate our project with any persistant layer)
+3.springboot starter security(for security)
+4.springboot starter thymeleaf(for static web pages)
+
+  
+How will you run your springboot application
+============================================
+whenever we are starting out project it will  not create the jar direclty ,it will goto the compiled classes folder inside target folder,and it will trigger the main method.
+
+
+What is the purpose of @SpringbootApplication annotation in springboot?
+=======================================================================
+
+It is a combination of 3 annotations
+1.@EnableAutoConfiguration(automatically configure various components for out application by scanning dependencies and load required jar)
+2.@ComoponentScan(By Default it will load the main class and it will load the class under that manin class package ,it will not load other packages,it will not add that beans to application context)
+3.@Configuration(this will load the customize or userdefined configuration classes,It allow register the extra bean in our context or input additional configuration classes)
+
+
+How can you load the  outside packeges explicitly which or not under your project main package?
+=============================================================================================
+We can able configure in the main class in @SpringbootApplication annotation
+@SpringbootApplication(scanBasePackages="com.demo.something") this way we can do.
+
+
+Can i use direclty above Annotations in my main class instead of using @SpringbootApplication,if yes will my application work as expected
+==========================================================================================================================================
+
+yes we can do
+
+@EnableAutoConfiguration
+@componentScan(scanBasePackages={"com.java.something,com","come.java.some"})
+@Import({SecurityConfig.class,SwaggerConfig.class})
+
+
+What is the Auto Configuration in Springboot?
+=============================================
+Which automatically configure the application based on the classpath dependency property settings and other settings.
+It will scan our dependency it will provide required predefined classes.
+
+we can check what are the classes its adding by adding below key value pair  in yml file 
+
+debug:true
+
+How can you disable specific AutoConfiguration class in springboo?
+===================================================================
+Go to main class and define like below
+
+@SpringbootApplication(exclude={DataSourceConfiguration.class})
+
+How can you customize the Default configuration in springboot?
+==============================================================
+server.port:8081 this is how can do 
+
+
+
+How Springboot Run method work internally?
+=========================================
+Spring will go to the class which will annotated with @SpringbootApplication then it will go to the main method and then it will run the run method
+It will load the environment properties
+It will create application context
+It will load the beans into application context
+It quicked up tomcat server and load our jar file 
+
+How can we run using CommandLiner?
+=================================
+Implements CommandLineRunner and override the run method
+
+public void run(String ..args) throws Exception
+{
+  sout("something");
+}
+
+this run method execute after the spring applicaton main method run method.
+
+
+Can you explain the purpose of StereoType annotations?
+=====================================================
+StereoType annotations are used to indicate the role or purpose of the class.There are different types of annotations are there like @Component ,@Controller,@Service ,@RestController,@Repository
+
+These are same but just define the role of our class we will use these different names,like somebody can easily understand by seeing purpose of those annotations.
+
+@Component -->Parent stereotype annotation(use for external classes)
+
+@Controller(for mainting all api),@Service(business logic) ,@Repository(database realted)--->These all inherited from @Component
+
+@RestController ->This  inherited from @Controller
+
+we can shuffle these annotations also.
+
+How can you define bean inside in springboot application?
+========================================================
+By annotationg the class with anyone of these @Component ,@Controller,@Service ,@RestController,@Repository this annotation.so springboot will create the object for our class in Application context.Ioc container will take care of our object life cycle.
+
+one more way is creating normal class and create one more class annotated with @Configuration and create one method return type is NormalClass and and return  the NormalClass Object by using new keyword and annotate this method with @bean.
+
+What is Dependency Injection?
+============================ 
+Dependency injection is a Design pattern,and it is used to achieve loose coupling between the classes within a application by removing the direct dependency between them.
+
+How many ways we can perform dependency injection in spring or springboot?
+==========================================================================
+
+1.Field Level Injection by annotationg with autowired
+----------------------------------------------------
+
+@Autowired
+private UserService userService;
+
+2.Using setter method by annotation with autowired on top of method
+-------------------------------------------------------------------
+
+private UserService userService;
+
+@Autowired
+public void setUserService(UserService userService){
+this.userService=userService;
+}
+
+
+3.constructor injection
+-----------------------
+
+class UserController{
+
+private UserService userService;
+
+<!-- @Autowired --> if it inject single bean @Autowired not required if we inject multiple beans in constructor need to provide @Autowired annotation 
+
+  public  UserController(UserService userService){
+  this.userService=userService;
+}
+
+}
+
+Where u would choose to use setter injection over constructor injection,and vice versa?
+======================================================================================
+
+Constructor Dependency Injection
+--------------------------------
+when we want our dependency is mandatory for your bean,it will injected at runtime,
+it ensures that all required dependency are provided at the time of object creation,if any mandatory dependency miss object can't create.
+
+Constructor injection have immutable nature.it wont modify after object creation.it ensures that dependency is immutable after object creation.
+
+It can't resolve the circular dependency.
+
+Circular Dependency means?
+--------------------------
+class UserService injecting ProductService and ProductService injecting UserService
+
+Not work with constructor injection,our application will not run,below is the problem code
+------------------------------------------------------------------------------------------
+
+@Service
+class UserService{
+
+ 
+  private ProductService productService;
+
+  @Autowired
+   public  UserService(ProductService productService){
+   this.productService=productService;
+}
+
+
+}
+
+@Service
+class ProductService{
+
+
+  private UserService userService;
+
+  @Autowired
+   public  ProductService(UserService userService){
+   this.userService=userService;
+
+}
+
+}
+
+
+
+Setter Dependency Injection
+--------------------------------
+when we want our dependency is optional for your bean,that time we will go for setter injection.
+
+Setter Dependency Injection not have immutable nature.
+
+It can resolve the circular dependency.
+
+ work with setter injection, our application will  run,below is the working code
+--------------------------------------------------------------------------------
+
+@Service
+class UserService{
+
+ 
+  private ProductService productService;
+
+  @Autowired
+  @Lazy
+   public void  setUserService(ProductService productService){
+   this.productService=productService;
+}
+
+
+}
+
+@Service
+class ProductService{
+
+
+  private UserService userService;
+
+  @Autowired
+  @Lazy
+   public void  setProductService(UserService userService){
+   this.userService=userService;
+
+}
+}
+
+can you provide an example of a real world use case where @PostConstruct is particularly useful?
+================================================================================================
+PostConstruct is a annotation is used to execute the pre-processing logic ,if we want execute some piece of code we want execute at the time of  application startup then we can use this @PostConstruct annotation.
+by using CommandLineRunner interface also we can do the same task,but if we want to play with annotation we will use this @PostConstruct annotation.
+
+@PostConstruct
+public void initLogic()
+{
+  System.out.println("Hello from @PostConstruct init method");
+}
+this will execute after main method @SpringbootApplication main class.
+
+
+if we have both commandLineRunner run methd and init method with @PostConstruct the order is like below
+
+1.main method
+2.@PostConstruct Annotation method
+3.CommandLineRunner run method
+
+RealTimeExmaple:
+---------------
+pursuppose if we have kafka logic in our code,if we want establish kafka  connection we will use @PostConstruct annotation to connect,and also we can write kaftka producer and consumer instantiate logic also .
+
+
+How can we dynamically load values in a springboot application?
+================================================================
+
+1st Approach
+------------
+By using @Value annotation.
+
+2nd Approach
+------------
+
+Environment environment=new Enviroment();
+
+enviroment.getProperty("");//key name
+
+
+Can you explain the key difference between YML and properties file,and in what scenarios you might 
+===================================================================================================
+prefer one format over the other?
+=================================
+
+.Syntax and Structure 
+ --------------------
+  -properties-file: we will user equal to provide value,in properties file we will write boiler plate code 
+  -yml-file: we will : symbol to provide value and also its more human readable and no boiler plate code
+
+.Hierarchy
+ ---------
+  -properties-file: it doesn't follow any Hierarchy,it is flat structure.
+  -yml-file: we can create duplicate prefix with Hierarchy.
+
+.Lists and Arrays  
+ ----------------
+  -properties-file: if we want store list values as key value pair we have to use comma separated values.ex:  fruites=apple,banana,mango
+  -yml-file: if we want store list values as key value pair we have to use - . 
+   ex: fruites:
+          -apple
+          -mango
+          -banana
+.Complex Data Types
+ ------------------
+ -properties-file: we can't define complex data types in application.properties file.it will only understand integer and string only.
+ -yml-file: we can't define complex data types in application.yml file.
+
+ .Readability:
+  -----------
+  -properties-file: properties file more comport but less readability for complex configuration
+  -yml-file: it makes more readability ,for complex configuration nested structure we use
+
+
+what is the difference between YML and YAML?
+============================================
+both are the same,in older version of window extension restricted 3 letters,so people are using 3 letter extension yml,nowdays no restriction at os level we can anyone,both having same syntax and same structure in file.
+
+
+If i will configure same values in both properties then which values will be load in springboot or who 
+===================================================================================================
+will load first properties or yml file?
+=======================================
+
+application.properties have more priority then yml file,so application.properties file load first then yml file.
+
+How to load external properties in springboot?
+=============================================
+ -properties-file: spring.config.import=(if it is in project resource same location as application.properties no need mention full path just name of that properties file:ex:- 
+ classpath :email-template.properties  if it is our computer ex: file://users/documents/email-template.properties like this we have to do.)
+
+
+ -yml-file: spring:
+              config:
+               import :(if it is in project resource same location as application.properties no need mention full path just name of that properties file:ex:- 
+ classpath :email-template.yml  if it is our computer ex: file://users/documents/email-template.yml like this we have to do.)
+
+
+How to map or bind config properties to java Object?
+====================================================
+create one class ex:DataSource annotate with @Configuration or @Component is also work or both we can define  and @ConfigurationProperties(prefix="spring.datasource") and create variables which we want to inject
+
+in application.yml file
+ spring:
+  datasource:
+     url:jdbc://something
+     username:manoj
+     password:manoj@123
+
+
+@Configuration
+@ConfigurationProperties(prefix="spring.datasource")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Component
+public class DataSource{
+
+private String url;
+private String userName;
+private String password;
+
+}
+
+How will you resolve bean ambiguity?
+====================================
+bean ambiguity means if one interface having 2 implementation if try to use @Autowired on interface our application will not run,it will give an error called ,required single bean,but found 2.
+so have one annotation called @Qualifier()
+
+
+1st Way
+------
+
+public class MailController{
+
+  @Autowired
+  @Qualifier("resendMailServiceImpl") //camelCaseNaming convesion 
+  public MailService mailService;
+
+}
+
+public interface MailService{
+}
+
+@Service
+public class ResendMailServiceImpl implements MailService{
+}
+
+ @Service
+ public class SendGridMailServiceImpl implements MailService{
+}
+
+2nd Way
+------
+
+public class MailController{
+
+  @Autowired
+  @Qualifier("sendgrid-service") //service name
+  public MailService mailService;
+
+}
+
+public interface MailService{
+}
+
+@Service("resend-service")
+public class ResendMailServiceImpl implements MailService{
+}
+
+ @Service("sendgrid-service")
+ public class SendGridMailServiceImpl implements MailService{
+}
+
+
+Can we avoid this dependency ambiguity without using @Qualifier?
+================================================================
+
+Yes,we can do.by using @Resource
+
+public class MailController{
+
+  @Autowired
+  @Resource(name="resendMailServiceImpl") //camelCaseNaming convesion 
+  public MailService mailService;
+
+}
+
+public interface MailService{
+}
+
+@Service
+public class ResendMailServiceImpl implements MailService{
+}
+
+ @Service
+ public class SendGridMailServiceImpl implements MailService{
+}
+
+
+@Qualifier,@Resource these working is same but there is only one difference is @Qualifier from spring library and @Resource is from java library itself.@Qualifier  will use class type and @Resource will use by name.
+
+What is bean scope & can you explain different type of bean scope?
+================================================================
+bean scope is reffered to the lifecycle and visability of a spring bean within the ioc container, bean scope determines how long a bean instance will live when it will created or destroyed .
+
+bean scopes:
+-----------
+
+Singleton :(applicable for stand alone and  web based application)
+-----------------------------------------------------------------
+This Singleton Scope,if we define bean scope as singleton,springboot or spring framework will create  single instance of bean for entire application,this is the default scope for a spring bean,and the same instance will shared across all the clients requesting to that bean
+
+if we want check ,even if we create 3 object it will load constructor one time only,it will return same object entire application.the reason is ioc container will return the object from in memory instead of creating new object.
+
+
+@Service
+<!-- @Scope("singleton") --> default it will happen no need to mention explicitly
+public class UserService{
+
+  public UserService()
+  {
+    System.out.println("UserService constructor");
+  }
+
+}
+
+
+@SpringBootApplication
+public class EmpTimeHubApplication {
+	public static void main(String[] args) {
+	ConfigurableApplicationContext context=	SpringApplication.run(EmpTimeHubApplication.class, args);
+
+UserService service1=context.getBean(UserService.class);
+UserService service2=context.getBean(UserService.class);
+UserService service3=context.getBean(UserService.class);
+
+	}
+
+}
+
+
+Prototype :(applicable for stand alone and  web based application)
+-----------------------------------------------------------------
+If we define a bean as Prototype it always create a new instance of the bean ,every time we request to spring context.
+
+
+if we want check , if we create 3 object it will load constructor 3 times ,it will return new object everytime we request to application context.the reason is ioc container will return the new object everyitme .
+
+@Service
+ @Scope("prototype")  
+public class UserService{
+
+  public UserService()
+  {
+    System.out.println("UserService constructor");
+  }
+
+}
+
+
+@SpringBootApplication
+public class EmpTimeHubApplication {
+	public static void main(String[] args) {
+	ConfigurableApplicationContext context=	SpringApplication.run(EmpTimeHubApplication.class, args);
+
+UserService service1=context.getBean(UserService.class);
+UserService service2=context.getBean(UserService.class);
+UserService service3=context.getBean(UserService.class);
+
+	}
+
+}
+
+
+Request :(applicable for web based application)
+-----------------------------------------------------------------
+Request bean scope only used in the web based application,and it always  create the new instance of a bean for each http request,after processing the request the bean instance typically discarded.
+
+@RestController
+public class DemoController{
+
+  @Autowired
+  private RequestBeanScope  requestBeanScope;
+
+@GetMapping("/get")
+public String get()
+{
+return requestBeanScope.getMessage()
+}
+
+}
+
+
+
+@Service
+@Request(value=WebApplicationContext.SCOPE_REQUEST,proxyMode=ScopedProxyMode.TARGET_CLASS)
+public class RequestBeanScope{
+  private String message ;
+public RequestBeanScope()
+{
+  System.out.println("RequestBeanScope constructor");
+  this.message="this is a request scope bean";
+
+}
+
+public void setMessage(String message)
+{
+  this.message=message;
+}
+
+public String getMessage()
+{
+ return message;
+}
+
+}
+
+if we call /get api 10 times ,10 times object will create.
+
+Session :(applicable for web based application)
+-----------------------------------------------------------------
+It creates single instance of the bean per user session.The instance persist throught the users sessions and typically discarded when the session ended.
+
+@RestController
+public class DemoController{
+
+  @Autowired
+  private SessionBeanScope  sessionBeanScope;
+
+@GetMapping("/get")
+public String get()
+{
+return sessionBeanScope.getMessage()
+}
+
+}
+
+@Service
+@Request(value=WebApplicationContext.SCOPE_SESSION,proxyMode=ScopedProxyMode.TARGET_CLASS)
+public class SessionBeanScope{
+  private String message ;
+public SessionBeanScope()
+{
+  System.out.println("SessionBeanScope constructor");
+  this.message="this is a request scope bean";
+
+}
+
+public void setMessage(String message)
+{
+  this.message=message;
+}
+
+public String getMessage()
+{
+ return message;
+}
+
+}
+
+application.yml
+---------------
+server.session.cookie.max-age=1
+server.session.timeout=1
+
+
+call the get api in incognito ,it will create one object and wait for 1 minute create one more incognito windo call get api then it will create one more object.if we call get api on the same incognito window it will not create new object it will return the same object.
+
+
+
+Application :(applicable for web based application)
+-----------------------------------------------------------------
+The Application scope is used in web based springboot application to create a single instance of the bean for the entire web application context.
+
+
+
+Websocket :(applicable for stand alone and  web based application)-------------------------------------------------------------------
+This WebSocket scope is specific to websocket based applications,and it create a single instance of the bean per websocket session.
+
+How to Define Custom Bean Scope?
+===============================
+if we want to create custom scope implements Scope interface and write our own logic.and regiter our scope in context and then user.
+
+Can you provide a few real time use cases for when to choose Singletone scope and Prototype scope?
+==================================================================================================
+
+Singleton Scope
+----------------
+.Database Configuration
+.Service Layer
+.Application Configuratin
+
+Prototype Scope
+----------------
+.User Session
+.Thread Safety
+.Heavy Initialization
+
+
+can we inject prototype bean in singleton bean ? if yes what will happen if we inject prototype bean 
+====================================================================================================
+in singleton bean ?
+===================
+If we inject Prototype bean in Singleton bean ,Prototype bean lose its scope,it will behave like a Singleton Scope bean.
+
+@Component
+public class SingletonBean {
+@Autowired
+private ProtoTypeBean protoTypeBean: I
+public SingletonBean() {
+System. out.println("SingletonBean() instantiated !!");
+}
+public ProtoTypeBean getProtoTypeBean() {
+return protoTypeßean;
+}
+
+}
+
+@Component
+@Scope("prototype")
+public class ProtoTypeßean {
+
+public ProtoTypeBeanO() {
+System. out.println("ProtoTypeBean() instantiate");
+}
+
+}
+
+
+@SpringBootApplication
+public class EmpTimeHubApplication {
+	public static void main(String[] args) {
+	ConfigurableApplicationContext context=	SpringApplication.run(EmpTimeHubApplication.class, args);
+
+SingletonBean singletonBean1=context.getBean(SingletonBean.class);
+SingletonBean singletonBean2=context.getBean(SingletonBean.class);
+
+System.out.println(singletonBean1.getProtoTypeBean().hashcode()+" : "+singletonBean2.getProtoTypeBean().hashcode())
+
+	}
+
+}
+Above logic is giving same hashcode,Prototype bean losing its own scope.
+
+1st Solution to get EveryTime New Prototype object
+-----------------------------------------------
+
+@Component
+public class SingletonBean {
+@Autowired
+ApplicationContext context: I
+public SingletonBean() {
+System. out.println("SingletonBean() instantiated !!");
+}
+public ProtoTypeBean getProtoTypeBean() {
+return context.getBean(ProtoTypeBean.class);
+}
+
+}
+
+@Component
+@Scope("prototype")
+
+@Autowired
+public class ProtoTypeßean {
+
+public ProtoTypeBeanO() {
+System. out.println("ProtoTypeBean() instantiate");
+}
+
+}
+
+
+@SpringBootApplication
+public class EmpTimeHubApplication {
+	public static void main(String[] args) {
+	ConfigurableApplicationContext context=	SpringApplication.run(EmpTimeHubApplication.class, args);
+
+SingletonBean singletonBean1=context.getBean(SingletonBean.class);
+SingletonBean singletonBean2=context.getBean(SingletonBean.class);
+
+System.out.println(singletonBean1.getProtoTypeBean().hashcode()+" : "+singletonBean2.getProtoTypeBean().hashcode())
+
+	}
+
+}
+
+Above logic is giving different hashcode..
+
+
+
+1st Solution to get EveryTime New Prototype object
+-----------------------------------------------
+
+@Component
+public class SingletonBean {
+@Autowired
+ApplicationContext context: I
+public SingletonBean() {
+System. out.println("SingletonBean() instantiated !!");
+}
+public ProtoTypeBean getProtoTypeBean() {
+return getInstance();
+}
+
+@Lookup
+public ProtoTypeBean getInstance() {
+return null;
+}
+
+}
+
+@Component
+@Scope("prototype")
+
+@Autowired
+public class ProtoTypeßean {
+
+public ProtoTypeBeanO() {
+System. out.println("ProtoTypeBean() instantiate");
+}
+
+}
+
+
+@SpringBootApplication
+public class EmpTimeHubApplication {
+	public static void main(String[] args) {
+	ConfigurableApplicationContext context=	SpringApplication.run(EmpTimeHubApplication.class, args);
+
+SingletonBean singletonBean1=context.getBean(SingletonBean.class);
+SingletonBean singletonBean2=context.getBean(SingletonBean.class);
+
+System.out.println(singletonBean1.getProtoTypeBean().hashcode()+" : "+singletonBean2.getProtoTypeBean().hashcode())
+
+	}
+
+}
+
+Above logic is giving different hashcode..
+
+
+ What is the difference between spring singleton and plain singleton ?
+======================================================================
+Spring Singleton Scope within the application context,Plain Singleton within the JVM,If i create 2 application context ,and from 2 differenct application context  if try to get the instance of  Singleton  bean,i will get the 2 different Singleton beans.because its scope within the application context.for Plain Singleton if we run our application in different jvm then only we will get 2 instance of Singleton bean.
+
+
+ What is the purpose of the BeanPostProcessor interface in Spring, and how can you use it to customize 
+ =====================================================================================================
+ bean initialization and destruction?
+=====================================
+
+If we want configure something on our bean before initialization and after bean initialization we will use BeanPostProcessor.
+
+
+Have You Worked on Restful WebServices?If yes What all HTTP Methods have you used in your project?
+=====================================================================================================
+@PostMapping
+-----------
+whenever we want post means we want add something through this api we will use @PostMapping annotation.
+
+@PutMapping
+-----------
+whenever we want update something  through this api we will use @PutMapping annotation.
+
+
+@DeleteMapping
+--------------
+whenever we want delete something through this api by passing id's or something we will use @DeleteMapping annotation.
+
+
+@PatchMapping
+-------------
+whenever we want patch means we want update little bit through this api we will use @PatchMapping annotation.
+
+How can you specify the HTTP method type for your REST endpoint?
+================================================================
+@PostMapping,PutMapping,DeleteMapping,PatchMapping
+
+What is difference between @PathVariable and @RequestParam?
+-----------------------------------------------------------
+@PathVariable:- it's a mandatory,we need to provide the value definatly othewise we will get 404 resource not found error.
+
+whenever our input is mandatory as part of our ulr then we will use @PathVariable.
+
+@RequestParam:- it's not a mandatory,if we keep required=false,Spring automatically inject null for that variable so,no need to send from frontend,it will execute normally.
+
+whenever our input is not mandatory as part of our ulr then we will use @RequestParam.
+
+
+what is the difference between @Controller and @RestController?
+================================================================
+
+@Controller
+-----------
+which is responsbile for handling api's in a class,if we use @controler annotation
+from the method it will return the page not values, not objects ,means it will expect html page.
+it will expect for modelAndView.
+
+
+@RequestMapping("/")
+public String homPage()
+{
+    return "home";//home is the frontend page like thymeleaf
+}
+
+Note:we can return values and objects also by adding @ResopnseBody annotation extra on method level,if we use controller annotation and if we want to return values or object data as json mandatory write @ResponseBody annotation at method level,that is the reason most of the web applications use @RestController because its  combination of @ResponseBody+@Controller
+
+
+@RequestMapping("/")
+@ResponseBody
+public String good()
+{
+    return "Good Morning"; //String value
+}
+
+
+
+@RestController
+---------------
+
+RestController is the combination of @ResponseBody+@Controller
+
+which is responsbile for handling api's in a class,if we use @RestControler annotation
+from the method it will return the object or value ,it will not return tha frontend pages it will return json data we can say.
+
+@RequestMapping("/")
+public String good()
+{
+    return "Good Morning"; //String value
+}
+
+@RequestMapping("/")
+public Product getProduct()
+{
+    Product product=new Product(1,"Apple");
+    return product; //Product Object
+}
+
+
+What are all the Difference Types of Request Mappings?
+======================================================
+
+@RequestMapping,GetMapping,PostMapping,PutMapping,DeleteMapping,PatchMapping
+-----------------------------------------------------------------------------
+
+@RequestMapping
+----------------
+This is the parent mapping annotation for all these above listed mapping annotation.
+if we use RequestMapping annotation for two or more methods and if the api name is same there is confusion right which api need to call.
+
+Ex:-
+
+@RequestMapping("/employee")
+public Employee addEmployee(EmployeeRequest request)
+{
+//some business logic
+return emp;
+}
+
+@RequestMapping("/employee")
+public Employee updateEmployee(EmployeeRequest request)
+{
+//some business logic
+return emp;
+}
+
+so in the above we know two method or diff one is add employee one is update employee,
+but api name is same so it will give runtime error
+
+so differentitate the what type request we are sending springboot developer create that above listed mappings
+
+
+@PostMapping("/employee")
+public Employee addEmployee(EmployeeRequest request)
+{
+//some business logic
+return emp;
+}
+
+@PutMapping("/employee")
+public Employee updateEmployee(EmployeeRequest request)
+{
+//some business logic
+return emp;
+}
+
+so this time even if api name is same but no confusion @PostMapping is for adding and @PutMapping is for update.
+
+@PostMapping
+------------
+whenever we want post means we want add something through this api we will use @PostMapping annotation.
+
+@PutMapping
+------------
+whenever we want update something  through this api we will use @PutMapping annotation.
+
+
+@DeleteMapping
+--------------
+whenever we want delete something through this api by passing id's or something we will use @DeleteMapping annotation.
+
+
+@PatchMapping
+-------------
+whenever we want patch means we want update little bit through this api we will use @PatchMapping annotation.
+
+
+How can we deserialize a json request payload into an object within a spring mvc controller?
+=============================================================================================
+First what are the json key's are there same key's name we have to use in our Request dto class variables.
+use @RequestBody annotation to map json data to our Request dto class.
+
+
+Can we perform update operation in POST http method if yes then why do we need PUT http method? 
+===============================================================================================
+
+POST http method
+----------------
+By Using POST http method if ur trying to add something, if we call api multiple times mulitple records will be create,so it is  not idempotent.
+
+PUT http method
+---------------
+By Using PUT http method if ur trying to update something by using id or something, if we call api multiple times also it will update same record only it will not update multiple records and it will not create new records,so it  idempotent.
+
+
+Can we pass @RequestBody in GET http method?
+===========================================
+Yes,it's possible but it's not a recommanded way.
+
+
+How can we perform content negotiation(XML/JSON) in Rest Endpoint?
+==================================================================
+@GetMapping(produces={"application/json","application/xml"})
+public Lixt<Products> getProducts()
+{
+  return service.getProducts();
+}
+
+pom.xml
+-------
+add below dependency
+
+jackson-dataformat-xml 
+
+
+application.yml
+--------------
+add below configuration in yml
+
+
+spring.mvc.contentnegotiation.favor-path-extension=true
+ spring.mvc.contentnegotiation.favor-parameter=true 
+ spring.mvc.contentnegotiation.defaultContentType=application/xml
+
+
+if we want check two type or response,in browser along with our api just mention   ?format=json  or ?format=xml
+
+
+
+
+
+what all status code you have observed in you application?
+===========================================================
+200 ok
+201 created
+400 bad request (wrong input)
+401 unathorized(wrong credintials)
+403 (Authentication successful but ur not authorize to access that future)
+404 (wrong resource)
+405 (wrong http method accessing,instead of using GET http method,calling POST http method with same api)
+415 Unsupported media type(instead of sending json ,if we send xml)
+500 internal server error
+
+
+
+How can you customize the status code for ur endpoint?
+======================================================
+
+@GetMapping("/products)
+@ResponseStatus(HTTPStatus.CREATED)
+public User addUser(@RequestBod User user)
+{
+  return userService.addUser(user);
+}
+
+
+
+How can you enable cors origin?
+================================
+
+If we want to allow per particular controller on top of controller class we can do like below
+@CrossOrigin(origins="http://localhost:3000")
+
+for entire application we can do like below
+-------------------------------------------
+/**
+ * Web configuration for CORS and static resources
+ */
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    @Value("${cors.allowed-origins}")
+    private List<String> allowedOrigins;
+
+    @Value("${cors.allowed-methods}")
+    private List<String> allowedMethods;
+
+    @Value("${cors.allow-credentials}")
+    private boolean allowCredentials;
+
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins(allowedOrigins.toArray(new String[0])) // Localhost + Lovable domain
+                .allowedMethods(allowedMethods.toArray(new String[0])) // GET, POST, etc.
+                .allowedHeaders("*") // Important: Set directly as "*"
+                .allowCredentials(allowCredentials);
+    }
+
+    
+}
+
+How can you upload a file in spring?
+===================================
+To upload file in springboot we will use @Requestparm("file") MultipartFile file
+
+@PostMapping("/fileUpload)
+public User fileUpload( @Requestparm("file") MultipartFile file)
+{
+  return userService.fileUpload(file);
+}
+
+
+How can you maintain versioning for you REST API?
+=================================================
+
+we will mention at api level like v1/ or v2/ v3/ like this 
+
+
+one way
+---------
+
+@PostMapping("/v1/bookNow")
+public ResponseEntity<String> versioning1(@RequestBody Object request) {
+return ResponseEntity.ok("Flight booking successfully completed !");
+
+｝
+
+
+@PostMapping("/v2/bookNow")
+public ResponseEntity<String> versioning2(@RequestBody Object request) {
+//latestLogic
+return ResponseEntity.ok("Flight booking successfully completed !");
+}
+
+
+second way
+---------
+
+@PostMapping("/booking")
+public ResponseEntity<String> versionRequestParam( @RequestBody Object request,@RequestParam(name="version") int version)
+
+if (version == 1) {
+return ResponseEntity.ok("This is version 1 of the resource");
+} else {
+return ResponseEntity.ok("This is version 2 of the resource");
+}
+
+
+third way
+---------
+@PostMapping("/booking")
+public ResponseEntity<String> versionRequestParam( @RequestBody Object request,@RequeHeader(name="API-Version") int version)
+
+if (version == 1) {
+return ResponseEntity.ok("This is version 1 of the resource");
+} else {
+return ResponseEntity.ok("This is version 2 of the resource");
+}
+
+
+How will document your REST API?
+================================
+Need to add swagger dependency in pom.xml,it will take care of our all endpoints and request and responses.in swagger we can see all controller api's and request dto's and reponse dto's
+previously it is swagger api dependency now it is springdoc-openapi-starter-webmvc-ui
+
+how can you hide your REST API endpoint?
+======================================
+By using @Hidden annotaiton on top of controller method.so this controller method api is not visible in swagger.
+
+
+
+how can you add description for your  REST API endpoint?
+=========================================================
+By using @Operation(description="Creating Employee ") annotaiton on top of controller method.
+
+
+how will you consume restful API?
+=================================
+In springboot we have multiple approaches to we can consume the restful webservice,we can use RestTemplate,FeignClient,WebClient,Advance Rest Client,using all these 4 we can consume any restful webservices.
+
+RestTemplate
+------------
+
+getFor Object method is get the data from restful webservice ,here below is the example for getting the mock users from google one website. UserResponse is our custom class what data wee need to display from that whole response which are coming from website,UserResponse is the our repsonse dto.
+
+@Autowired
+Private RestTemplate template;
+
+@GetMapping("/mockUsersUsingRestTemplate")
+public List<UserResponse>fetchMockUsersWithRestTemplate()
+{
+List<UserResponse> response  =template.getForObject("https://jsonplaceholder.typecode.com/users",List.class);
+return response;
+}
+
+
+FeignClient
+------------
+
+Create one interface and mapping like below.
+
+@FeignClient(url="https://jsonplaceholder.typicode.com", name = "USER-CLIENT"')
+public interface UserClient {
+@GetMapping("/users")
+public List‹UserResponse> getUsers();
+}
+
+
+@Autowired
+Private UserClient userClient;
+
+@GetMapping("/mockUsersUsingFeignClient")
+public List<UserResponse>fetchMockUsersWithFeignClient()
+{
+List<UserResponse> response  =userClient.getUsers();
+return response;
+}
+
+
+How will you handle exceptions in your project?
+==============================================
+Create one custom exception class by extending RuntimeException or Exception class.and pass String msg to the parent class using super(msg) in constructor.
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+pubic class UserNotFoundResponse{
+
+private String status;
+private String errorMessage;
+private HttpStatus statusCode;
+
+}
+
+
+Public class UserNotFound extend RuntimeException{
+ Public UserNotFound(String msg)
+ {
+  super(msg);
+ }
+}
+
+Create One Handler class to handle the all global exceptions in our application.
+
+@RestControllerAdvice
+public class GlobalExceptionHandler{
+
+@ExceptionHandler(UserNotFound.class)
+  public UserNotFoundResponse userNotFound(UserNotFound userNotFound)
+  {
+
+return UserNotFoundResponse.builder()
+.status("FAIL")
+.errorMessage(userNotFound.getMessage)
+.statusCode(HttpStatus.INTERNAL_SERVER_ERROR)
+.build;
+
+  }
+
+}
+
+instead of creating our own repsonse we can use ProblemDetails class provided by springboot.
+
+@ExceptionHandler(UserNotFound.class)
+  public ProblemDetails userNotFound(UserNotFound userNotFound)
+  {
+
+return ProblemDetails.forStatusAndDetails(HttpStatus.INTERNAL_SERVER_ERROR,userNotFound.getMessage());
+
+  }
+
+}
+
+
+How can you avoid Defining handlers for multiple exceptions,or what is the best practive for handling 
+=======================================================================================================
+exceptions?
+===========
+
+so instead of creating two exceptionhandlers method ,we can do like below. like catching the any exception  in catch block and taking the message and passing one Special exception class
+
+service
+-------
+
+  public String fetch(boolean flag, String storeId) {
+        try {
+            if (flag) {
+                throw new DataRetrievalFailureException("Store not available in system with storeId " + storeId);
+            } else {
+                throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Rest client error occurred while fetching store information");
+            }
+        } catch (Exception ex) {
+            throw new ProdcutServiceException(ex.getMessage());
+        }
+
+    }
+
+Handling
+-------
+
+
+@ExceptionHandler(ProdcutServiceException.class)
+  public UserNotFouProblemDetailsndResponse userNotFound(ProdcutServiceException ex)
+  {
+
+return ProblemDetails.forStatusAndDetails(HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
+
+  }
+
+
+How will you validate or sanitize your input payload?
+====================================================
+we need to add dependency called spring-boot-starter-validation.
+
+
+Model/Request DTO
+-----------------
+
+import jakarta.validation.constraints .*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public class Product {
+        @NotNul1(message = "id shouldn't be null")
+        @NotEmpty(message = "id shouldn't be empty")
+        private String id;
+        @NotBlank(message = "name shouldn't be null or empty")
+        private String name;
+        @Min(value = 499, message = "price shouldn't be less than 499")
+        @Max(value = 100000, message = "price shouldn't be exceed more than 100000")
+        private double price,
+        @NotBlank(message = "model shouldn't be null or empty")
+        @Pattern(regexp = "[A-Za-z0-9]+")
+        private String model;
+        @NotBlank(message = "productType shouldn't be null or empty")
+        private String productType;
+        <!-- @Email
+        private String email;
+        @AssertTrue
+        private boolean isActive;
+        @Past
+        private Date dateOfBirth
+        @Future
+        private Date deathDate; -->
+    }
+
+Controller Class
+----------------
+
+@PostMapping("/saveProduct")
+public List<Product> saveProduct(@RequestBody @Valid Product product)
+{
+  return service.saveProduct(product);
+}
+
+GlobalExceptionHanlder
+--------------------
+MethodArgumentNotValidException this is predefined class if any validation failed spring boot throw this exception so handle this exception and send key value pairs for end users to know which are not validate properly.
+
+   @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        Map<String, String> errorMap = new HashMap<>();
+        ex.getBindingResult.getFieldErrors()
+        •forEach(error -> {
+            errorMap.put(error.getField()), error.getDefaultMessage()
+        });
+         return errorMap;
+
+    }
+
+
+How can you define custom bean validation?
+==========================================
+create annoation for validationg ProductType.
+
+annotation
+-----------
+
+@Target({ElementType.FIELD,ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Constraint(validatedBy=ProductValidator.class)
+public @interface ValidateProductType{
+
+public String message() default "Product Type shd be Electronics or Clothes";
+
+Class<?>[] groups() default {};
+Class<? extends Payload>[] payload() default {};
+}
+
+validator
+---------
+    import jakarta.validation.ConstraintValidatorContext;
+    import java.util.Arrays;
+    import java.util.List;
+
+    public class ProductTypeValidator implements ConstraintValidator<ValidateProductType, String> {
+        @Override
+        public boolean isvalid(String productType, ConstraintValidatorContext constraintValidatorContext) {
+            List‹String>productTypes = Arrays.asList("Electronics", "Clothes");
+            return productTypes.contains(productType);
+        }
+    }
+
+Model/RequestDTO
+----------------
+ @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public class Product {
+       
+        @NotBlank(message = "productType shouldn't be null or empty")
+         @ValidateProductType <!-- Custom Annotation -->
+        private String productType;
+        
+    }
+
+Use Case: Let's say you find a bug in production environment and now you want to debug that scenario,
+=======================================================================================================
+How can you do that from your local?
+====================================
+First in local wee need to switch the enviornment,so that spring boot provide concept call spring profile,so we can easily switch from one enviornment to another enviornment.
+
+application.yml
+---------------
+
+ex:spring:
+     profile:
+       active:dev / local /prod
+
+if we keep like above it shd load that application yml only for supposer dev profile active
+application-dev.yml will load .
+
+
+Configaruation class
+--------------------
+
+application.yml
+---------------
+spring:
+     profile:
+       active:dev / local /prod
+
+
+
+so that profile method only run,even if we use @Profile in method level wee need active anyone of profile in yml file then only it will work.
+
+We can use for method level also, @Profile annotation also at method level
+
+ @Configuration
+    public class KafkaConfiguration {
+        @Bean
+        @Profile("stg")
+        public KafkaProps stgkafkaProps() {
+            KafkaProps props = new KafkaProps("200.40.7.181:8282", 8282, "stg-user-topic");
+            System.out.println("stg bean initialized !");
+            return props;
+        }
+
+        @Bean
+        @Profile("prod")
+        public KafkaProps prodkafkaprops() {
+            KafkaProps props = new KafkaProps("247.69.84.118:8383", 8383, "prod-user-topi");
+            System.out.println("prod bean initialized !");
+            return props;
+        }
+
+    }
+
+
+
+  use case:we will use different database schemas for different profiles,in local we will test that users or data maynot available in prod or dev schema.
+
+
+
+
+How can we enable different environments without using Profiles?Is it possible if yes how to do?
+=======================================================================================================
+
+Yes,it's possible ,mention key value pair in application yml file then create configuration class and add @ConditionalOnProperty and mention prefix,name,havingValue in this annotation
+
+application.yml
+---------------
+
+   app:
+     active:
+       env:dev / local /prod
+
+this app.active.env key can be anything, this is our custom one .
+
+
+@Configuration
+    public class KafkaConfiguration {
+        @Bean
+        @ConditionalOnProperty(prefix = "app.active", name = "env", havingValue = "stg")
+        public KafkaProps stgkafkaProps() {
+            KafkaProps props = new KafkaProps("200.40.7.181:8282", 8282, "stg-user-topic");
+            System.out.println("stg bean initialized !");
+            return props;
+        }
+
+        @Bean
+        @ConditionalOnProperty(prefix = "app.active", name = "env", havingValue = "stg")
+        public KafkaProps prodkafkaprops() {
+            KafkaProps props = new KafkaProps("247.69.84.118:8383", 8383, "prod-user-topi");
+            System.out.println("prod bean initialized !");
+            return props;
+        }
+
+    }
+
+
+What is the difference between @Profile and @Conditional?
+=========================================================
+
+@Profile
+--------
+Profile is specifically designed for activating componets based on the active profile in the application.
+
+@Conditional
+------------
+which is a more general purpose annotation,that allows us to define condition for bean creation or configuration based on varies criteria not limited to profile.it means using conditional we can define multiple criteria,like conditional on bean,conditional on missing bean,conditional on class or conditional on property.
+
+
+What is AOP?
+============
+AOP:->AOP stands for Aspect Oriented Program, AOP provide a way to separate cross cutting  concersn or secondary logic from the main business logic of our application,when i say secondory logic it could be transaction related code,it could be validation,logging,auditing,notification related stuff,those things are secondatory to my application without them also my code shd run perfectly,why shd mixup  those cross cutiing concerns with my business logic.
+
+
+What are different type of Advices?
+===================================
+
+.Before Advice
+--------------
+(if you want to implement some logic which you want execute before that particaular or target method)
+
+.After Advice(Consider Exception)
+--------------------------------
+(if you want to implement some logic which you want execute after that particaular method or target method,it will doesn't care about exception in target method ,it will execute even if target method is throwing exception)
+
+.After Returning Advice(No Exception)
+-----------------------------------
+(if you want to implement some logic which you want execute after that particaular method or target method,it will not execute if target method throws exception)
+
+.After Throwing Advice
+-----------------------
+(if you want to implement some logic which you want execute,  particaular or target method throwing exception then only that logic will execute)
+
+  
+.Around Advice
+--------------
+Around Advice is the key adAdviceive in AOP term,because using Around Advice u can desing lot of custom Aspect.If we want to execute something after that particular method and before that particular method we will use this advice.It is a combination of Before and After Returning Advices.
+
+Around Advice= Before Advice+After Returning Advice;
+
+
+Examples for Advice 
+------------------
+
+@Aspect
+@Component
+@S1f4j
+public class LoggingAdvice {
+
+    @Pointcut("execution(* com.javatechie.service.ProductService.*(.))")
+    private void logPointcut() {
+    }
+
+
+    @Before("logPointcut()")
+    public void logRequest(JoinPoint joinPoint) throws JsonProcessingException {
+        log.info("Before Advice - class name {} ,method name {} ", joinPoint.getTarget(), joinPoint.getSignature.getName());
+
+        log.info("Before Advice - Request Body {} ", new ObjectMapper.writeValueAsString(joingPoint.getArgs()))
+
+
+    }
+
+
+    @After(value = "execution (* com. javatechie.service.ProductService.*(.))")
+    public void logResponse(JoinPoint joinPoint) throws JsonProcessingException {
+
+        log.info("After Advice - LoggingAdvice:: logResponse class name {} "method name {
+        }
+        ",  joinPoint.getTarget(), joinPoint.getSignature().getName());
+
+        log.info(" After Advice -LoggingAdvice::logResponse Response Body {}", new ObjectMapper()ObjectMapper().writeValueAsString(joinPoint.getArgs()));
+
+    }
+
+      @AfterReturning(value = "execution (* com. javatechie.service.ProductService.*(.))")
+    public void logResponse(JoinPoint joinPoint) throws JsonProcessingException {
+
+        log.info("After Advice - LoggingAdvice:: logResponse class name {} "method name {
+        }
+        ",  joinPoint.getTarget(), joinPoint.getSignature().getName());
+
+        log.info(" After Advice -LoggingAdvice::logResponse Response Body {}", new ObjectMapper()ObjectMapper().writeValueAsString(joinPoint.getArgs()));
+
+    }
+
+
+
+    @AfterThrowing(value = "execution (* com. javatechie.service.ProductService.*(..))")
+    public void logError(JoinPoint joinPoint) throws JsonProcessingException {
+
+        log.info("Throws Advice - LoggingAdvice: :logResponse class name {} ,method name {} ", joinPoint.getTarget(), joinPoint.getSignature().getName());
+
+        log.info("Throws Advice - LoggingAdvice: :logResponse Response Body {} ", new ObjectMapper().writeValueAsString(joinPoint.getArgs()));
+    }
+
+}
+
+use case - can I use AOP to evaluate performance of a method or is this possible to design a logging 
+======================================================================================================
+ framework to capture request and response body of a method ?
+=============================================================
+
+Annotations
+------------
+
+package com.javatechie.annotation;
+import.*
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface TrackExecutionTime { 
+  
+}
+
+
+package com.javatechie.annotation;
+import.*
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface LogPayLoad { 
+  
+}
+
+Aspects
+-------
+-To Track Exection Time of a method
+-----------------------------------
+@Aspect
+@Component
+@S1f4j
+public class LogExecutionTracker {
+
+@Around("@annotation(com.javatechie.annotation.TrackExecutionTime)")
+public Object logExecutionDuration(ProceedingJoinPoint pjp) throws Throwable {
+
+//before advice
+
+long startTime = System. currentTimeMillisO;
+Object obj = pjp.proceedO;
+
+//after advice
+
+long endTime = System. currentTimeMillis;
+log. info(" method {} execution takes {} ms times to complete ", pjp.getSignatureO, (endTime-startTime));
+
+return obj;
+
+  }
+}
+
+
+-To capture the Payload and Repsonse in the logs
+-------------------------------------------------
+
+@Aspect
+@Component
+@S1f4j
+public class LogPayloadAdvice {
+
+@Around("@annotation(com.javatechie.annotation.LogPayloads)")
+public Object logPayloads(ProceedingJoinPoint pjp) throws Throwable {
+//before advice
+
+log. info("Request Body {} ", new ObjectMapper().writeValueAsString(pjp.getArgs()));
+Object obj = pjp.proceed();
+
+//after advice
+log. info("Response Body {} ", new ObjectMapper(). writeValueAsString(pjp.getArgs));
+
+return obj;
+}
+}
+
+So we will use these two (TrackExecutionTime,LogPayLoad)annotations at method level in service 
+
+Service
+------
+
+@TrackExecutionTime
+@LogPayloads
+public List<Product> saveProduct(Product product) {
+
+    boolean containsProductId = productList.stream()
+    •map(Product::getId).anyMatch(productId -> productId.equals(product.getId()));
+
+    if (!containsProductId) {
+        productRepo.save(product);
+    } else {
+        throw RuntimeException("Product already available");
+    }
+
+}
+
+How does your application interact with the database and which framework ur using?
+==================================================================================
+
+We are using spring data jpa as part of our application to make the connection our app to the data base.
+
+1st Step:-Create Entity
+----------------------
+
+We have to create entity class and create few variables , must and shd annotate with @Enitity and also keep @Id for primary key.if we want customize table name instead of our class name we can use @Table(name="employee_table"),example our class name is employee,and also if we want generate the id auto , we will use annotation called @GeneratedValue(strategy=GenerationType.IDENTITY),and also if we want customize the column name instead of the variable name we will use @Column(name="employee_name") ,class variable name is name,so we change to employee_name in db table.
+
+
+2nd Step:-Create Repository
+---------------------------
+Create Repository interface called Your entity name with Repository(EmployeeRepository) which shd extends JPARepository<Employee,Intger>,Employee is the entity name ,Integer is the primary key data type.
+
+
+3rd Step:-application.yml
+-------------------------
+
+spring:
+  datasource:
+        url:jdbc:postgressql://localhost:5432/emptimehub_local
+        username:postgres
+        password:admin
+  jpa:
+    show-sql:true
+    hibernate:
+      ddl-auto:none
+
+
+What is it important to configure a physical naming strategy?
+=============================================================
+If we not mention physical naming strategy in yml file ,for example 
+
+@Entity
+class Employee{
+
+  @Id
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
+  private int id;
+
+  private String empName; <!--  this empName is stored emp_name as in database.but if we dont want to change this name ,whatever we mention in table if we want like that only keep below key and value in yml file then it will create table column with empName not emp_name -->
+
+}
+spring.jpa.hibernate.naming.physical_strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+
+What are the key benfits of using spring data jpa?
+==================================================
+Spring Data JPA simplifies the Development of Data Accessing layer by providing the repository as a  high level  abstraction over jpa entity.By defining entity and Repository ,Hey this Repository will perform all crud operations for this particular entity.Everything will take care by spring data jpa.
+It also reduce the boiler plate code,by providing built in create ,update,delete all the predifined methods.if we want create save for update also we will use save only,for delete delete for findBy also there for all columns and also findAll for fetch all records.it will reduce query creation by writing findBy methods in Repository.
+
+
+What are difference between Hibernate JPA and Spring Data JPA?
+==============================================================
+
+Hibernate
+--------
+This is a ORM Tool ,Object Relational Mapping for java.and also this hibernate direclty help you to mapping from the object to the table vice versa,table mapping done by hibernate.and also hibernate provide couple features called catching and transactional
+
+JPA
+---
+JPA is nothing it's a Specification ,who offers couple of Standard API's and methods ,which is implemented by particular ORM like hibernate.
+
+Spring Data JPA
+--------------
+Spring Data JPA is nothing it's just another layer or abstraction on top of jpa framework.
+
+
+How can you connect multiple databases or data sources in a single application?
+===============================================================================
+
+“Multiple databases are handled by defining multiple data sources, each with its own transaction manager and persistence configuration. Repositories are mapped explicitly to a data source. For dynamic selection, a routing mechanism can be used. This is common for multi-tenancy, read/write splitting, and modular architectures.”
+
+If interviewer asks “What problems arise?”
+
+Distributed transaction complexity
+Eventual consistency issues
+Replica lag (read replicas)
+Cross-database joins should be avoided
+
+
+
+What is ORM?
+============
+ORM
+---
+Object Relational Mapping is nothing but mapping java objects with database tables
+
+Means Java class is mapped as database table and variables as data base columns.
+
+We will create entity class ,we annoted with @entitiy and we will use @Id for primary key.
+
+we have so many ORM tools ,most popular is hibernate. 
+
+
+What is JPA?
+=============
+JPA
+---
+Java Persistance API which use ful whenever we change the ORM Tool.
+like if we change from hibernate to EclipseLink(this also one orm tool) so no need to change the code JPA will manage all the things.
+
+
+
+
+
+What are the  different ways to define custom queries in Spring Data JPA?
+=========================================================================
+
+find by salary greater than with different types
+----------------------------------------------
+
+1.Method Syntax
+----------------
+
+List<Employee> findBySalaryGreaterThan(double salary);
+
+2.JQuery(JPQL)(Java Persistance Query Language) here we need to add alias
+--------------------------------------------------------------------------
+
+@Query(value = "select * from Employee e where e.salary>:salary")
+List<Employee> findEmployeeWithJPQL(@param("salary")double salary);
+
+3.SQL
+------
+@Query(value = "select * from Employee where salary>?1",nativeQuery=true)
+List<Employee> findEmployeeWithSQL(double salary);
+
+
+
+Can you provide example to find results based on some range?
+===========================================================
+
+Ex:-Can you list of employees whose age between 30 to 35 (between include >= and <= )
+--------------------------------------------------------
+
+List<Employee> findByAgeBetween(int min,int max);
+
+Ex:-Find average salary of an employee in an organization
+--------------------------------------------------------
+
+@Query(value = "select AVG(e.salary) from Employee e ")
+Optional<Double> avgSalary();
+
+
+How will you defin entity relationships or association mapping in spring data JPA?
+=================================================================================
+
+@Entity
+@Builder
+public class Customer {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    private String email;
+
+    // Other fields...
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    private List<Order> orders;
+
+}
+
+
+@Entity
+@Builder
+public class Orders {
+
+private Long id;
+
+private String name;
+
+private int qty;
+
+private double price;
+
+@ManyToOne
+@JoinColumn(name = "customer_id")
+private Customer customer;
+
+}
+
+Is this possible to to execute Join query in Spring Data JPA ? If yes how can you add some insights?
+==================================================================================================
+
+Response Dto
+-----------
+package com.javatechie.common;
+
+@Data
+@AllArgsConstructor 
+@NoArgsConstructor
+public class CustomerOrderDTO {
+ private String customerName;
+ private Long orderCount; 
+ private double price;
+
+}
+
+Repo
+---
+
+
+   Query(value = "SELECT c. name , COUNT(o) FROM Customer c JOIN c.orders o GROUP BY c. id")
+   List<Object[]> findCustomerOrderCount();
+
+   Query(value = "SELECT NEW com.javatechie.common.CustomerOrderDTO(c.name, COUNT(o), Sum(o.salary)) FROM Customer c JOIN c.orders o GROUP BY c. id")
+   List<CustomerOrderDTO> findCustomerOrderCountResponse();
+
+
+How will you implement pagination and sorting in spring data jpa?
+==================================================================
+
+
+Sort by Field
+--------------
+
+public List<Employee> findEmployeesWithSorting(String feld){
+return repository.findAll(Sort.by(Sort.Direction.ASC,feld));
+}
+
+
+Pagination
+----------
+
+public Page<Employee> findEmployeesWithPagination(int pageNumber, int pageSize){
+return repository.findAll(PageRequest.of(pageNumber, pageSize));
+}
+
+total records :-> 20
+each pageSize contain 5 records
+
+pageNumber 0 (0-5) ,pageNumber 1 (6-10),pageNumber 2 (11-15) ,pageNumber 3 (16-20)
+
+Pagination With Sorting
+-----------------------
+public Page<Employee> findEmployeesWithPaginationAndSorting(int pageNumber, int pagesize, String field){
+return repository.findAll(PageRequest. of(pageNumber, pagesize). withSort(Sort.by(field)));
+}
+
+
+What are the different types of audit annotations?
+=================================================
+@EntityListeners(AuditingEntityListner.class) -->Need to keep on entity class level
+
+below all fields in entity
+
+@CreatedDate
+private Datae createdAt;
+
+@UpdatedDate
+private Datae updatedAt;
+
+@CreatedBy
+private Datae createdBy;
+
+@LastModifiedBy
+private Datae updateddBy;
+
+
+
+This annotation on main class
+@EnableJpaAuditing
+
+
+
+
+
+
+

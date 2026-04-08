@@ -1,0 +1,1602 @@
+# Java Microservices Development Notes
+
+==================================================
+
+# Topics Covered
+-----------------
+
+1. Monolithic Architecture
+2. Microservices Architecture & Why
+3. Service Registry (Discovery Service)
+4. Admin Server
+5. Zipkin Server
+6. APIs Development (Backend Microservices)
+7. Interservice Communication (Feign Client)
+8. API Gateway (Routing and Filters)
+9. Cloud Config Server
+10. Mini Project Architecture
+
+==================================================
+
+# 1. Monolithic Architecture
+
+==================================================
+
+Monolithic architecture is a **software design pattern where all functionalities of an application are developed and deployed as a single application**.
+
+All modules are tightly integrated and run in **one codebase and one deployment unit**.
+
+------------------------------
+## Example: Banking Application
+-------------------------------
+
+Modules inside same application
+
+• Net Banking
+• Mobile Banking
+• Credit Card Services
+• Debit Card Services
+• Customer Management
+• Transactions
+
+===================================
+## Monolithic Architecture Diagram
+===================================
+
+```
+                +-----------------------+
+                |     Client / User     |
+                +----------+------------+
+                           |
+                           v
+                +-----------------------+
+                |   Monolithic App      |
+                |-----------------------|
+                | Net Banking Module    |
+                | Mobile Banking Module |
+                | Credit Card Module    |
+                | Debit Card Module     |
+                | Customer Module       |
+                +-----------+-----------+
+                            |
+                            v
+                      +-----------+
+                      | Database  |
+                      +-----------+
+```
+
+All modules run inside **one application**.
+
+==================================================
+
+# Challenges With Monolithic Architecture
+
+==================================================
+
+----------------------
+## 1. Tight Coupling
+----------------------
+
+All modules are connected together.
+
+If we modify one module it may impact other modules.
+
+Example
+```
+Change in Credit Card module
+        ↓
+May impact Payment module
+```
+
+-------------------------
+## 2. Deployment Issues
+-------------------------
+
+If we make a small change, we must deploy the **entire application**.
+
+Example
+
+```
+Bug in Debit Card module
+→ Need to redeploy whole Banking application
+```
+
+---------------------------
+## 3. Scalability Issues
+---------------------------
+
+We cannot scale individual modules.
+
+Example
+
+```
+High traffic on Payments
+
+But we must scale entire application
+instead of scaling only Payment module
+```
+
+----------------------------
+## 4. Maintenance Complexity
+----------------------------
+
+As application grows
+
+• Codebase becomes very large
+• Hard to understand
+• Hard to maintain
+
+---------------------------
+## 5. Technology Dependency
+---------------------------
+
+Whole application must use the **same technology stack**.
+
+Example
+
+```
+Backend → Java
+Frontend → JSP
+```
+
+Introducing new technologies becomes difficult.
+
+-------------------
+## 6. Server Burden
+-------------------
+
+Entire application runs on **single server**.
+
+Heavy load can slow down system.
+
+----------------------------
+## 7. Single Point of Failure
+-----------------------------
+
+If the application crashes, the **entire system stops**.
+
+Example
+
+```
+Payment module failure
+→ Whole banking system down
+```
+
+==================================================
+
+# 2. Microservices Architecture
+
+==================================================
+
+Microservices is an **architectural design pattern where an application is divided into multiple small independent services**.
+
+Each service:
+
+• Handles a specific business functionality
+• Runs independently
+• Communicates via APIs
+
+-------------------
+## Important Points
+------------------
+
+Microservices is:
+
+• NOT a technology
+• NOT a framework
+• NOT a programming language
+
+Microservices **is an Architectural Design Pattern**.
+
+It can be implemented using:
+
+• Java
+• Python
+• NodeJS
+• Go
+• .NET
+
+=======================================
+
+## Microservices Architecture Diagram
+
+=======================================
+
+```
+                +-------------------+
+                |       Client      |
+                +---------+---------+
+                          |
+                          v
+                 +------------------+
+                 |   API Gateway    |
+                 +--------+---------+
+                          |
+       --------------------------------------------
+       |            |            |                |
+       v            v            v                v
+
++--------------+ +--------------+ +--------------+ +--------------+
+| User Service | | Order Service| | Payment Serv | | Product Serv |
++--------------+ +--------------+ +--------------+ +--------------+
+       |               |                |               |
+       v               v                v               v
+
+   +--------+      +--------+      +--------+      +--------+
+   |  DB    |      |  DB    |      |  DB    |      |  DB    |
+   +--------+      +--------+      +--------+      +--------+
+```
+
+Each service:
+
+• Independent
+• Own database
+• Independent deployment
+
+==================================================
+
+# Advantages of Microservices Architecture
+
+==================================================
+
+---------------------
+## 1. Loose Coupling
+---------------------
+
+Services are independent.
+
+Failure in one service does not affect others.
+
+Example
+
+```
+Payment Service down
+→ User Service still works
+```
+
+---------------------------
+## 2. Reduced Server Burden
+---------------------------
+
+Services are distributed across servers.
+
+Load is balanced.
+
+-----------------------
+## 3. Easy Maintenance
+-----------------------
+
+Each service has **small codebase**.
+
+Developers can maintain easily.
+
+--------------------------------
+## 4. No Single Point of Failure
+--------------------------------
+
+If one service fails
+
+Other services continue working.
+
+------------------
+## 5. Scalability
+------------------
+
+We can scale **only the required service**.
+
+Example
+
+```
+High traffic on Payment Service
+
+Scale only Payment Service
+```
+
+----------------------------------
+## 6. Technology Independence
+----------------------------------
+
+Each microservice can use different technology.
+
+Example
+
+```
+User Service → Java
+Payment Service → NodeJS
+Notification Service → Python
+```
+
+----------------------------------
+## 7. Faster Development & Delivery
+----------------------------------
+
+Multiple teams can work on different services simultaneously.
+
+==================================================
+
+# Challenges With Microservices Architecture
+
+==================================================
+
+---------------------
+## 1. Bounded Context
+----------------------
+
+Deciding
+
+• How many microservices
+• Which functionality belongs to which service
+
+Requires strong domain understanding.
+
+---------------------------
+## 2. Repeated Configuration
+---------------------------
+
+Every microservice requires configuration such as
+
+• Database
+• Security
+• Kafka
+• Logging
+• Monitoring
+
+Configuration duplication may occur.
+
+-------------------------=
+## 3. Service Visibility
+-------------------------
+
+In large systems it becomes difficult to know
+
+```
+Which service provides which functionality
+```
+
+To solve this we use
+
+• Service Registry
+• Documentation
+• Monitoring tools
+
+==================================================
+
+# Microservices Supporting Components
+
+==================================================
+
+There is **no fixed architecture** for microservices.
+
+Architecture can be customized based on project requirements.
+
+Common components used
+
+• Service Registry (Eureka)
+• Admin Server
+• Zipkin Server
+• Config Server
+• Kafka Server
+• Redis Server
+• Feign Client
+• API Gateway
+
+Note: **All components are not mandatory.**
+
+==================================================
+
+# Typical Spring Boot Microservices Architecture
+
+==================================================
+
+```
+                        +------------------+
+                        |      Client      |
+                        +---------+--------+
+                                  |
+                                  v
+                         +----------------+
+                         |   API Gateway  |
+                         +--------+-------+
+                                  |
+                     -----------------------------
+                     |             |             |
+                     v             v             v
+
+              +-----------+  +-----------+  +-----------+
+              | User MS   |  | Order MS  |  | Payment MS|
+              +-----+-----+  +-----+-----+  +-----+-----+
+                    |              |              |
+                    v              v              v
+               +--------+     +--------+     +--------+
+               |  DB    |     |  DB    |     |  DB    |
+               +--------+     +--------+     +--------+
+
+                     ↑
+                     |
+             +----------------+
+             | ServiceRegistry|
+             |    (Eureka)    |
+             +----------------+
+
+             +----------------+
+             | Config Server  |
+             +----------------+
+
+             +----------------+
+             |  Zipkin Server |
+             +----------------+
+
+             +----------------+
+             | Admin Server   |
+             +----------------+
+```
+
+==================================================
+
+# Microservices Infrastructure Flow
+
+==================================================
+
+Client
+↓
+API Gateway
+↓
+Service Registry (Discover Services)
+↓
+Microservices
+↓
+Database
+
+==================================================
+## Additional Supporting Components
+
+==================================================
+Config Server → Centralized configuration
+Zipkin → Distributed tracing
+Admin Server → Monitoring
+Kafka → Event streaming
+Redis → Caching
+Feign Client → Service-to-service communication
+
+
+==================================================
+## Inter Service Communication
+==================================================
+
+One Service API will communicate with another Service API is called  Inter Service Communication
+
+===================
+
+# Service Registry
+
+====================
+
+Service Registry is used to maintain **information about all microservices in a centralized location**.
+
+It stores details such as:
+
+* Service Name
+* Service Instance URL's
+* Service Status
+* Service Health
+* Service Port
+
+This helps services **discover and communicate with each other dynamically**.
+
+Service Registry is also called **Service Discovery**.
+
+In Spring Boot Microservices, we commonly use **Eureka Server** as the Service Registry.
+
+Eureka Server is provided by the **Spring Cloud** library.
+
+It also provides a **dashboard UI** where we can see all registered microservices and their status.
+
+
+------------------------------
+## How Service Registry Works
+------------------------------
+1. When a microservice starts, it **registers itself with the Eureka Server**.
+2. Eureka Server stores the service details.
+3. Other services or API Gateway can **discover services using Eureka**.
+4. Services can communicate without knowing the exact IP address.
+
+Example Flow
+
+User Service → Register → Eureka Server
+Order Service → Register → Eureka Server
+
+API Gateway → Ask Eureka → Where is User Service?
+Eureka → Returns Service URL
+
+---------------------------------
+## Service Registry Architecture
+------------------------------
+```
+            +------------------+
+            |   Eureka Server  |
+            | Service Registry |
+            +---------+--------+
+                      |
+   -----------------------------------------
+   |                    |                  |
+   v                    v                  v
+```
+
++-----------+        +-----------+       +-----------+
+| User MS   |        | Order MS  |       | Payment MS|
++-----------+        +-----------+       +-----------+
+
+Each service registers itself with Eureka.
+
+================
+
+# Admin Server
+
+================
+
+Admin Server is used to **monitor and manage all microservices from a single dashboard**.
+
+It provides a **centralized monitoring UI** where we can see the status of all running services.
+
+In Spring Boot microservices, **Spring Boot Admin** is commonly used.
+
+It collects monitoring information using **Spring Boot Actuator**.
+
+-----------------------------
+## Why Admin Server is Used
+------------------------------
+In microservices architecture, there may be **many services running simultaneously**.
+
+Instead of checking each service individually, Admin Server allows us to **monitor everything in one place**.
+
+----------------------------------------
+## Information Available in Admin Server
+------------------------------------------
+
+Admin Server can display the following information:
+
+--------------------
+### 1. Health Check
+---------------------
+
+Shows whether the service is running properly.
+
+Example
+
+UP
+DOWN
+OUT_OF_SERVICE
+
+--------------------------------
+### 2. Configuration Properties
+--------------------------------
+
+Displays configuration values loaded by the microservice.
+
+Example
+
+Database URL
+Kafka Configuration
+Redis Configuration
+Application Properties
+
+--------------------
+### 3. Beans Loaded
+--------------------
+
+Shows all **Spring Beans** loaded in the application.
+
+Example
+
+Service Beans
+Controller Beans
+Repository Beans
+Configuration Beans
+
+--------------------
+### 4. URL Mappings
+--------------------
+
+Displays all available **API endpoints**.
+
+Example
+
+/users
+/orders
+/products
+/payments
+
+------------------------
+### 5. Logger Management
+-------------------------
+
+We can **change log levels dynamically** without restarting the application.
+
+Example
+
+INFO
+DEBUG
+ERROR
+TRACE
+WARN
+
+-----------------------------
+## Admin Server Architecture
+------------------------------
+```
+    +----------------------+
+    |    Admin Server      |
+    |   Monitoring UI      |
+    +----------+-----------+
+               |
+  --------------------------------
+  |              |               |
+  v              v               v
+```
+
++-----------+   +-----------+   +-----------+
+| User MS   |   | Order MS  |   | Payment MS|
+| Actuator  |   | Actuator  |   | Actuator  |
++-----------+   +-----------+   +-----------+
+
+Admin Server collects monitoring data from **Actuator endpoints of each microservice**.
+
+=================
+
+## Zipkin Server
+
+=================
+
+Zipkin Server is used for distributed tracing in microservices architecture.
+
+When a request passes through multiple microservices, Zipkin helps us track the complete flow of that request.
+
+It helps answer questions like:
+
+• How much time is taken to process a request
+• Which microservice is taking more time
+• How many microservices are involved in processing a request
+• Where exactly the request failed
+
+Zipkin provides a beautiful web UI dashboard to visualize request flow across services.
+
+Zipkin Distributed Tracing Flow
+
+Client Request
+↓
+API Gateway
+↓
+Service A
+↓
+Service B
+↓
+Service C
+↓
+Database
+
+Zipkin records the entire request journey and displays timing for each service.
+
+Zipkin Architecture
+            +--------------------+
+            |     Zipkin Server  |
+            |  Distributed Trace |
+            +----------+---------+
+                       |
+    ----------------------------------------
+    |                |                     |
+    v                v                     v
+
++-----------+ +-----------+ +-----------+
+| Service A | -> | Service B | -> | Service C |
++-----------+ +-----------+ +-----------+
+
+Each service sends trace information to Zipkin.
+
+=================
+
+## Config Server
+
+================
+
+Config Server is used to externalize and centralize configuration properties of microservices.
+
+Instead of keeping configuration files inside each microservice, they are stored in a central configuration server.
+
+This helps separate:
+
+Application Code
+Application Configuration
+
+This makes microservices loosely coupled with configuration files.
+
+Why Config Server is Used
+
+In microservices architecture there may be many services.
+
+Without Config Server:
+
+Each service has its own application.properties or application.yml.
+
+With Config Server:
+
+All configuration is stored in one centralized location.
+
+Config Server Architecture
+            +----------------------+
+            |     Config Server    |
+            | Central Configuration|
+            +----------+-----------+
+                       |
+    ----------------------------------------
+    |                |                     |
+    v                v                     v
+
++-----------+ +-----------+ +-----------+
+| Service A | | Service B | | Service C |
++-----------+ +-----------+ +-----------+
+
+All microservices fetch configuration from Config Server at startup.
+
+Example configurations stored:
+
+Database configuration
+Kafka configuration
+Redis configuration
+Application properties
+Environment variables
+
+===============
+
+## Feign Client
+
+===============
+
+Feign Client is used for inter-service communication between microservices.
+
+When one microservice needs to call another microservice, we use Feign Client.
+
+Feign Client is provided by the Spring Cloud library.
+
+It is a declarative REST client, meaning we just define an interface and Spring automatically generates the REST call.
+
+Example
+
+Order Service needs to call Payment Service.
+
+Instead of writing REST template code manually, we use Feign Client.
+
+Example:
+
+@FeignClient(name = "PAYMENT-SERVICE")
+public interface PaymentClient {
+
+@GetMapping("/payment/{id}")
+Payment getPayment(@PathVariable Long id);
+
+}
+
+Feign automatically sends the request to the target microservice.
+
+Feign Client Architecture
+       +-------------+
+       | Order MS    |
+       +------+------+
+              |
+         Feign Client
+              |
+              v
+       +-------------+
+       | Payment MS  |
+       +-------------+
+
+This simplifies microservice-to-microservice communication.
+
+==============
+
+## API Gateway
+
+===============
+
+API Gateway acts as the single entry point for all client requests in a microservices architecture.
+
+Frontend applications cannot directly access microservices.
+
+ all requests go through the API Gateway.
+
+API Gateway acts as a mediator between the frontend and backend microservices.
+
+Responsibilities of API Gateway
+
+• Routing requests to the correct microservice
+• Authentication and authorization
+• Request validation
+• Rate limiting
+• Logging and monitoring
+• Security enforcement
+
+Filters and Routing
+Filters
+
+Filters allow us to perform:
+
+Pre-processing (before request reaches service)
+
+Examples
+
+Authentication
+Request validation
+Logging
+
+Post-processing (after response)
+
+Examples
+
+Response modification
+Logging response
+Error handling
+
+Routing
+
+Routing is used to forward client requests to the correct backend microservice.
+
+Example
+
+Client Request → /orders → Order Service
+Client Request → /users → User Service
+
+API Gateway Architecture
+                 +-------------+
+                 |   Client    |
+                 +------+------+
+                        |
+                        v
+                 +-------------+
+                 | API Gateway |
+                 +------+------+
+                        |
+    ------------------------------------------
+    |                    |                   |
+    v                    v                   v
+
++-----------+ +-----------+ +-----------+
+| User MS | | Order MS | | Payment MS|
++-----------+ +-----------+ +-----------+
+
+All client requests first pass through the API Gateway.
+
+The API Gateway validates the request and forwards it to the appropriate microservice.
+
+It acts like a security guard for backend microservices.
+
+
+=============================================================
+
+Steps To Develop Service Registry Application (Eureka Server)
+
+=============================================================
+
+1.Create Service Registry application With Below Dependency
+  
+  -Eureka Server(spring-cloud-starter-netflix-eureka-server)
+
+2.Configure @EnableEurekaServer annotation in springboot start class
+
+3.Configure below properites in application.yml
+
+   server:
+     port:8761 (if we register Service Registry Microservice 8761,our microservices(us,os,ps) will auto register with eureka server by default)
+
+4.spring cloud version (2025.0.1)     
+
+
+5.configure below properties in yml file
+
+  server :
+    port :8761
+
+Note-1:If "Service-Registry" project port is 8761 then clients can discover service-registry and will register automatically with service-registry
+
+Note-2:if service-registry running on any other port no then we have to register clients with service-registry manually.
+
+6.Once application started we can access eureka server dashboard using below url
+
+URL : http://localhost:8761/
+
+
+
+=============================================================
+
+Steps To Develop Spring Admin Server Application (Admin Server)
+
+=============================================================
+
+1.Create Springboot application with "admin-server" dependency
+    (select while creating project)
+
+2.Configure @EnableAdminServer annotation at start class
+
+3.Change port number(optional)
+
+4.Run the Springboot application
+
+5.Access application URL in browser (we can see admin server ui)
+
+6.Url to access the **Admin Server** given below.
+
+ URL: http://localhost:8080/
+
+
+===============================================================
+
+Steps To Develop Zipkin  Server Application (Zipkin Server)
+
+===============================================================
+
+1st Option to Download
+-----------------------
+
+1.Download Zipkin jar file from from internet below is the url
+
+URL :https://zipkin.io/pages/quickstart.html
+
+
+it will open dashboard go to below place and click on latest release it will download,if not download run that curl command in command line 
+
+
+ ## Java
+
+(If you have Java 17 or higher installed, the quickest way to get started is to fetch the **latest release:** as a self-contained executable jar:
+
+curl -sSL https://zipkin.io/quickstart.sh | bash -s
+)
+
+
+2.Run zipkin jar file by using below command
+   
+   java -jar <zipkin-jar-name>
+
+
+2nd Option to Download
+----------------------
+
+## Docker 
+run below command it will create container,opern docker desktop and run it or stop it.
+
+docker run -d -p 9411:9411 openzipkin/zipkin
+
+
+=>Zipkin server runs on port no 9411
+
+=>Access zipkin server dashboard 
+ URL: http://localhost:9411/
+
+
+===============================================================
+
+Steps To Develop Micro Services (ex:User Service,Product Service)
+
+=================================================================
+
+
+## User Service
+=================
+
+1.Create Springboot application with below dependencies
+
+   -erueka-discovery-client
+   -admin-client
+   -zipkin
+
+   -starter web
+   -devtools
+   -actuator
+   -openfeign
+
+2.Enable @EnableDiscoveryClient annotation at springboot start class
+
+3.Config below configuration in yml file
+
+spring:
+  application:
+    name: User-Service
+  boot:
+    admin:
+      client:
+        url: http://localhost:8080/
+server:
+  port: 8081
+eureka:
+   client:
+     service-url:
+       defaultZone: http://localhost:8761/erueka/ #manual registration for eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+      
+4.Create RestController class with Required method
+
+ Ex:-
+ <!-- package com.userservice.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class UserController {
+    @GetMapping("/getUser")
+    public String getUser() {
+        return "User Fetched Successfully!!";
+    }
+
+} -->
+
+
+## Product Service
+===================
+
+1.Create Springboot application with below dependencies
+
+   -erueka-discovery-client
+   -admin-client
+   -zipkin
+
+   -starter web
+   -devtools
+   -actuator
+
+
+
+2.Enable @EnableDiscoveryClient annotation at springboot start class
+
+3.Config below configuration in yml file
+
+spring:
+  application:
+    name: User-Service
+  boot:
+    admin:
+      client:
+        url: http://localhost:8080/
+server:
+  port: 8081
+eureka:
+   client:
+     service-url:
+       defaultZone: http://localhost:8761/erueka/ #manual registration for eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+      
+4.Create RestController class with Required method
+
+    Ex:-
+<!-- import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class ProductController {
+
+    @GetMapping("/getProduct")
+    public String getProduct() {
+        return "Product Fetched Successfully!!";
+    }
+} -->
+
+==============================================
+
+## Ways To Achieve Inter Service Communication
+
+==============================================
+
+# one service can communicate with another service is called inter service communication.
+
+# Provider 
+ ----------
+The service which is giving the services to other service is called Provider.
+
+# Consumer
+----------
+The service which is accessing the services from other services is called Consumer.
+
+
+# 3 Ways
+----------
+
+1.Rest Template
+2.Web Client
+3.Feign Client
+
+If we use Rest Template  or Web Client we need to hard code the url of other service, which are not recomanded way because for load balancing we will deploy services in 3,4 places we will get 3,4 url's for single microservice so it's not good approach , better to go with Feign Client.
+
+# Feign Client
+----------------
+By Using Feign Client we can establish the communication from one microservice to another microservice by using name of the micro service not by using url.
+
+1.add feign client dependency to our project(user service(consumer))
+2.@EnableFeignClients annotate on our main class(user service(consumer))
+3.Create one Interface like below in consumer service
+
+ackage com.userservice.controller;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@FeignClient("PRODUCT-SERVICE")
+public interface GetProductFeignClient {
+    @GetMapping("/getProduct")
+    public String getProduct();
+
+}
+
+4.Call this method from RestController class like below(user service(consumer))
+
+package com.userservice.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class UserController {
+
+    @Autowired
+    private GetProductFeignClient getProductFeignClient;
+
+    @GetMapping("/getProduct")
+    public String getProduct() {
+        String product = getProductFeignClient.getProduct();
+        return "User Service Called -> " + product;
+    }
+}
+
+so here we are calling product service /getProdcut api from user service.
+
+
+
+=========
+
+## Kafka
+
+=========
+
+=>It is used as  message broker.
+
+=>Distributing Streaming Platform
+
+=>It works based on Pub-Sub model.
+
+=================
+
+## Redis Server
+
+=================
+
+=>Redis is a cache server
+
+=>Redis Represents data in a key-value pair
+
+=>Redis is used reduce no.of db calls
+
+
+
+=================
+
+## Load Balancer
+
+=================
+
+# Problem Without Load Balance
+------------------------------
+
+=> If we deploy our application on single server,If So many Requests will come to our  our server,burden will increase on cpu so, response  delay happend and  our server will crash,so it is a single point of failure. and our application will not run.so this is not recommaned to deploy in single server.
+
+Single Server Disadvantages
+---------------------------
+Single Point of Failure – Server crash stops the whole application.
+
+High CPU Load – Too many requests overload the server.
+
+Slow Response – Requests take longer to process under heavy load.
+
+No Scalability – Hard to handle increasing traffic.
+
+Downtime Risk – Maintenance or failure makes the app unavailable.
+
+Performance Issues – Application slows down as load increases.
+
+# Load Balancer
+---------------
+=> Instead of deploying our application in single server ,we will deploy our applicaiton in multiple servers that is called load balancer.
+
+=> One Load Balancer will be available for our application,and all the servers will be register with load balancer,customer will send the request to the load balancer,then load balancer distribute the requests to all the servers which are running on our application in Round Robin Fashion.1st request will go the 1st server,2nd request will go the 2nd server,3rd request will go the 3rd server,
+
+Load Balancer Advantages
+------------------------
+
+Traffic Distribution – Requests are spread across multiple servers.
+
+Better Performance – Reduces load on individual servers.
+
+High Availability – Other servers handle traffic if one fails.
+
+Fault Tolerance – Prevents application downtime.
+
+Easy Scalability – New servers can be added easily.
+
+Faster Responses – Requests go to the least busy server.
+
+Health Monitoring – Detects and removes unhealthy servers.
+
+# Implementation Load Balancer
+------------------------------
+
+**Client Side Load Balancer**
+------------------------------
+
+=>Remove Port No from for which service we want load balancing(ex:Product Service(Producer))
+
+=>In order verify the port is changed or not print the port no from that service controller (ex:Product Service(Producer))
+Ex:
+package com.productservice.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+@RestController
+public class ProductController {
+
+    @Autowired
+    private Environment environment;
+
+    @GetMapping("/getProduct")
+    public String getProduct() {
+        return "Product Fetched Successfully!!"+"Port No -> "+"("+environment.getProperty("server.port")+")";
+    }
+
+
+}
+
+=>we have to run our Service with 3 or more Different port no's(Ex:Product Service (producer))
+
+=> Call the Producer Service service using FeignClient
+
+=>Feign client will ask the service registry for producer how many url's avaialble ,if we run on using 3 ports we have 3 diff url's,so Feign Client dont know which url to use,so In Feign Client one Concept called **Robbin** it will Repeat the server callings,so instead of hitting all request to same server,it will  call one by one,for first request first server ,for second request second server for that third server,then repeat.
+
+=>In Feign Client only Robbin will be there to maintaion Load Balancing.
+
+=>If we want load balancer for client side must and shd we have to use Feign Client only,With Rest Template and Web Client Load Balancer will not work.
+
+=>If want to Use Rest Template or Web Client Only we will create load balancer at **Server Side**(Ex:Consumer Side(user-service)) cloud will provide load balancer like azure or aws.
+
+=>**Server side Load Balancing** is good when we are deploy our project in cloud(AWS,Azure)
+
+
+==============================
+
+## API GATEWAY Implementation
+
+==============================
+
+1.Create Spring boot application with below dependency
+
+  -eureka lient
+  -cloud gateway
+  -devtools
+
+2.Configure @EnableDiscoveryClient annotation in Springboot start class.
+
+3.Configure Routings in application.yml file like below.
+
+
+spring:
+  application:
+    name: API-Gateway-Service
+  cloud:
+    gateway:
+      routes:
+      - id: user-service
+        uri: lb://USER-SERVICE
+        predicates:
+          - Path=/web/api/v1/user-service/**
+        filters:
+              - StripPrefix=4
+
+      - id: product-service
+        uri: lb://PRODUCT-SERVICE
+        predicates:
+          - Path=/web/api/v1/product-service/**
+        filters:
+          - StripPrefix=4
+  boot:
+    admin:
+      client:
+        url: http://localhost:8090/
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+management:
+  web:
+    exposure:
+      include: '*'
+
+server:
+  port: 9000
+
+
+ 4.Controller methods shd be like below in services(not in api gateway service)
+
+
+USER-SERVICE
+------------
+
+    @GetMapping("/getUser)
+    public String getUser() {
+        return "User Fetched Successfully!!";
+    }
+
+PRODUCT-SERVICE
+---------------
+
+@GetMapping("/getProduct)
+    public String getProduct() {
+        return "Product Fetched Successfully!!";
+    }
+
+
+
+5.Create filter to validate the incoming requests.
+   
+  =>If request contain secret below header then it is valid request so process it
+    secret=Manoj@123
+
+  =>if above header is not present then it is invalid request ,don't process it.
+
+  => create MyFilter class like below
+
+  Myfilter
+  --------
+
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+
+@Component
+public class MyFilter implements GlobalFilter {
+
+    @override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+
+        System.out.println(" filter() - executed..... ");
+
+        ServerHttpRequest request = exchange.getRequest();
+        HttpHeaders headers = request.getHeaders();
+        Set‹String > keySet = headers.keySet();
+        if (!keySet.contains("Secret")) {
+            throw new RuntimeException("Invalid Request");
+        }
+        List‹String›list = headers.get("Secret");
+        if (!list.get(0).equals("Manoj@123")) {
+            throw new RuntimeException('Invalid Request");
+        }
+
+
+        return chain.filter(exchange);
+
+    }
+}
+
+
+========================
+
+## Cloud Config Server
+
+========================
+
+**Problem Without Config Server**
+---------------------------------
+=>We are Configuring our application config properties in application.properties or application.yml file.
+
+Ex:DB props,SMTP props,Kafka props,App messages etc...
+
+=>application.properties or application.yml file will be packaged with our application(it will be part of our app jar file)
+
+=>If we want to make changes in properties or yml file then we have to re-package our application and we have to re-deploy our application
+
+Note:If any changes required in config properties then we have to repeat the complete project build & deployment which is time consuming process.
+
+=>If multiple services having same properties like eureka configuration,we have to write same code in all service applictions.yml files,
+
+**Usage Of Config Server**
+---------------------------
+
+=>To avoid this problem,we have to separate our project source code and project config properties file.
+
+=>To centralize config properties from the application we can use **spring cloud config server**.
+
+=>Config Server is a part of Spring Cloud Library.
+
+Note:Application Config properties files we will maintain in git hub repo and config server will load them and will give to our application based on our application name.
+
+service-name: Config-Client-Service -->Config-Client-Service.yml
+
+
+=>Our Microservice will get the config properties from config server will load them from github repo.
+
+
+
+====================================
+
+## Develop Config Server Application
+
+====================================
+
+1.Create Git Repository and keep yml files required for microservices
+   Note:we should keep yml file name as application name
+
+Ex:-
+   service-name: Config-Client-Service -->Config-Client-Service.yml
+
+
+https://github.com/java-developer-manoj/configuration_properties  
+
+2.Create Spring boot application with below dependency
+
+  a)config server
+
+   <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-config-server</artifactId>
+		</dependency>
+
+   b)dev tools 
+
+3.Write @EnableConfigServer annotation at springboot start class.
+
+4.add below things in application.yml of our config-server-service
+
+  spring:
+  application:
+    name: Config-Service-Service
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/java-developer-manoj/configuration_properties
+server:
+  port : 8897
+
+5.Run our config server application
+
+
+====================================
+
+## Develop Config Client Application
+
+====================================
+
+1.Create Spring boot application with below dependency
+
+  a)config client
+
+   <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+
+   b)dev tools 
+   c) web starter
+   d)actuator
+
+2.Create Rest Controller with required methods
+
+package com.config.controller;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class ConfigClientController {
+
+    @Value("${msg}")
+    private String msg;
+
+    @GetMapping("/")
+    public String getMessage() {
+        return msg;
+    }
+
+}
+
+
+
+3.Configure Config Server url in application.yml file like below
+
+spring:
+  application:
+    name: Config-Client-Service
+  config:
+    import: optional:configserver:http://localhost:8897
+
+server:
+  port: 7993
+
+
+4.Run our config client  application.
+
+5.But if change the values in git it will not reflect ,we need to re run our config server.
+
+6.So we have to do like below
+
+=>Configure @RefreshScope at @Rest Contoroller class 
+=>Enable actuator end point 'refresh'
+=>Send post request to actuator end point 'refresh' from postman.
+
+Ex:-application.yml
+-------------------
+
+spring:
+  application:
+    name: Config-Server-Service
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/java-developer-manoj/configuration_properties
+server:
+  port : 8897
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh
+
+
+Ex:Controller
+-------------
+
+package com.config.controller;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RefreshScope
+public class ConfigClientController {
+
+    @Value("${msg}")
+    private String msg;
+
+    @GetMapping("/")
+    public String getMessage() {
+        return msg;
+    }
+    
+}
+
+7.call this below api
+
+http://localhost:7993/actuator/refresh
+
+8.then call our actual api call
+
+http://localhost:7993/
+we will get new content or new values.
+
+
