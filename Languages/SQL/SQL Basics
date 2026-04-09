@@ -1,10 +1,11 @@
 # SQL NOTES
 
+=========
 # DATA
 =========
 Data is raw information. It can be numbers, text, dates, or any meaningful values.
 
-
+=========
 # SQL
 =========
 
@@ -13,7 +14,7 @@ SQL (Structured Query Language) is used to communicate with relational databases
 * SQL is case-insensitive (SELECT = select)
 * Used to store, retrieve, update, and manage data
 
-
+=========
 # DBMS
 =========
 
@@ -25,26 +26,24 @@ DBMS (Database Management System) is software that:
 
 Examples: MySQL, PostgreSQL
 
-
+=========
 # SQL TYPES
 ===========
 
 1. DDL (Data Definition Language)
    Used to define structure,all ddl commands acts on table structure,all ddl commands are auto committed.
    Commands: CREATE, ALTER, DROP, TRUNCATE
-
 CREATE 
 -------
 which is used to create the tables 
 
 create table employee(id int,name varchar(10));
-
 ALTER
------
+-------
 which is used to add or modify the table COLUMNS
 
-==> ADD
-
+ ADD
+-------
     -Add new column to the table
 
 ALTER TABLE EMPLOYEE ADD COLUMN EMP_EMAIL VARCHAR(100);
@@ -53,8 +52,8 @@ ALTER TABLE EMPLOYEE ADD COLUMN EMP_EMAIL VARCHAR(100);
 
 ALTER TABLE EMPLOYEE ADD PRIMARY KEY (ID);
 
-=> MODIFY    
-
+MODIFY    
+-------
     - Modify column data type(IN MySQL)
  ALTER TABLE EMPLOYEE MODIFY EMP_NAME VARCHAR2(100);
 
@@ -66,11 +65,10 @@ ALTER TABLE EMPLOYEE ADD PRIMARY KEY (ID);
  ALTER TABLE EMPLOYEE ALTER EMP_NAME TYPE VARCHAR2(100) USING EMPLOYEE::VARCHAR2(10);
 
 
-=> RENAME    
-
+ RENAME    
+-------
     - Rename column name
  ALTER TABLE RENAME EMP_NAME TO NAME ;
-
 
 TRUNCATE
 ---------
@@ -80,7 +78,8 @@ TRUNCATE TABLE EMPLOYEE
 
 
 DROP
-----
+-----
+
 IT WILL DELETE THE WHOLE TABLE STRUCTURE WITH DATA .
 
 <!-- IT WILL STORE IT IN RECYCLEBIN(THIS RECYCLEBIN WORK ONLY MY SQL )
@@ -113,7 +112,7 @@ PURGE TABLE EMPLOYEE
    Commands: COMMIT, ROLLBACK, SAVEPOINT
 
 
-
+=============
 # PRIMARY KEY
 =============
 
@@ -121,7 +120,7 @@ PURGE TABLE EMPLOYEE
 * Cannot be NULL
 * Cannot have duplicate values
 
-
+=============
 # FOREIGN KEY
 =============
 
@@ -139,7 +138,7 @@ teacher_id int,
 foreign key (teacher_id) references teacher(teacher_id)
 );
 
-
+=============
 # DATA TYPES
 =============
 
@@ -154,23 +153,23 @@ foreign key (teacher_id) references teacher(teacher_id)
 | BOOLEAN    | True/False        | TRUE, FALSE         |
 
 
-
+========
 # TABLE
 ========
 A table is a collection of rows and columns.
 
-
+================
 # COLUMN (FIELD)
 ================
 Represents an attribute of the data.
 
-
+================
 # ROW (RECORD)
 ==============
 
 Represents a single entry in the table.
 
-
+================
 # CHAR vs VARCHAR
 =================
 
@@ -191,16 +190,17 @@ Example:
 Manoj -> [M][a][n][o][j]
 
 
-
+=============
 # QUERIES
 =============
 
+-------------------
 ## CREATE DATABASE
 ------------------
 
 create database learning_postgres;
 
-
+-------------------
 ## CREATE TABLE
 ------------------
 
@@ -211,25 +211,25 @@ student_group varchar(100),
 student_age int check(student_age > 3),
 student_gender char(1)
 );
-
+-----------------
 ## ADD COLUMN
 ------------------
 
 alter table student add column student_email varchar(100);
 
-
+------------------
 ## RENAME COLUMN
 ------------------
 
 alter table student rename column student_email to student_gmail;
 
-
+-----------------
 ## DROP COLUMN
 ------------------
 
 alter table student drop column student_gmail;
 
-
+------------------
 ## INSERT DATA
 ------------------
 
@@ -258,80 +258,51 @@ insert into student values
 insert into employee(emp_commission) values (1500),(1400),(2000)
 
 
-
+-------------
 ## SELECT ALL
 --------------
 
 select * from student;
 
-
+-----------------
 ## UPDATE DATA
 ----------------
 
 
 update student set student_age = 30 where student_id = 1;
 
-
+---------------------
 ## DELETE ONE RECORD
 --------------------
 
 delete from student where student_id = 1;
 
-
+----------------------
 ## DELETE ALL RECORDS
 --------------------
 
 delete from student;
 
+----------------------
 ## SELECT SPECIFIC COLUMNS
 ---------------------------
 
 select student_id, student_name from student;
 
-
+-----------
 ## ORDER BY
 -----------
 select * from student order by student_age asc;
 select * from student order by student_age desc;
 
-
+-----------
 ## DISTINCT
 -----------
 
 select distinct student_name from student;
 
 
-## COUNT
------------
-
-select count(*) from student;
-
-
-## AVERAGE
------------
-
-select avg(student_age) as average_age from student;
-
-
-## MINIMUM
------------
-
-select min(student_age) as minimum_age from student;
-
-
-## MAXIMUM
------------
-
-select max(student_age) as maximum_age from student;
-
-
-## SUM
--------
-
-select sum(student_age) as sum_age from student;
-
-
-
+--------
 # JOINS
 =======
 
@@ -340,7 +311,7 @@ in both table column names can be different but data type must be same and
 primary key ,foreign key relationship also not compulsary.for retrival primary key ,foreign key  is optional but for inserting ,deleting,updating mandatory.
 
 
-
+------------------
 # TYPES OF JOINS
 -----------------
 (EQUI JOIN)
@@ -382,12 +353,13 @@ Assume two tables:
 | C4         | Wipro        |
 
 
-
+-------------
 # INNER JOIN
 ------------
 
 Definition:
 Returns only matching records from both tables.
+
 
 ## QUERY
 ------------
@@ -415,7 +387,7 @@ ON e.company_id = c.company_id;
 * Wipro is excluded (no employee)
 
 
-
+-------------
 # LEFT JOIN
 ------------
 
@@ -449,14 +421,12 @@ ON e.company_id = c.company_id;
 * Keeps all LEFT table data
 
 
-
+-------------
 # RIGHT JOIN
 ------------
 
 Definition:
 Returns all records from right table + matching from left table.
-
-
 
 
 ## QUERY
@@ -486,7 +456,7 @@ ON e.company_id = c.company_id;
 * Keeps all RIGHT table data
 
 
-
+------------------
 # FULL OUTER JOIN
 -----------------
 
@@ -522,7 +492,7 @@ ON e.company_id = c.company_id;
 * Missing matches are filled with NULL
 
 
-
+-------------
 # CROSS JOIN
 ------------
 
@@ -570,7 +540,7 @@ CROSS JOIN   → Multiplication of rows
 
 ---
 
-
+=======
 # VIEW
 =======
 
@@ -746,12 +716,13 @@ employee group by designation order by designation asc
 select to_char(emp_joining_date,'yyyy') , count(*)  from
 employee group by to_char(emp_joining_date,'yyyy') order by to_char(emp_joining_date,'yyyy')  asc
 
-
+==================
 # WHERE vs HAVING
 ==================
 
 
 WHERE                          vs                 HAVING
+
 filter rows                                  filter groups
 
 applied before group by                      applied after group by
@@ -787,10 +758,10 @@ Q)dept wise total salaries where dept no=1,2 and sum(sal)>10000
 Ans) select emp_department_number as department , sum(emp_salary) from employee
      where emp_department_number in(1,2) group by emp_department_number having sum(emp_salary) > 10000 order by 1 asc;
 
-
+=================
 # ROLLUP and CUBE
 =================
-
+---------
 # ROLLUP
 ---------
 => Rollup is used to get the grand total and sub total of each department only ;
@@ -831,7 +802,7 @@ GROUP BY ROLLUP(emp_department_number, designation)
 ORDER BY department NULLS LAST;
 
 
-
+-------
 # CUBE
 -------
 
@@ -870,6 +841,7 @@ group by CUBE(emp_department_number,designation) order by 1 nulls last
 
 
 
+==================================================
 
 # ROLLUP AND CUBE WITH QUERY + OUTPUT + EXPLANATION
 
@@ -879,7 +851,7 @@ We are using table:
 employee(emp_department_number, designation, emp_salary)
 
 
-
+===========
 # 1. ROLLUP
 
 ===========
@@ -964,9 +936,8 @@ ROLLUP creates hierarchy:
 → (dept, NULL)
 → (NULL, NULL)
 
-
+=========
 # 2. CUBE
-
 =========
 
 ## QUERY
@@ -1041,10 +1012,8 @@ CUBE creates all combinations:
 (NULL, designation)
 (NULL, NULL)
 
-
-
+============
 # DIFFERENCE
-
 ============
 
 ROLLUP:
@@ -1061,15 +1030,15 @@ CUBE:
 
 
 # INTERVIEW ONE-LINER
-
 ====================
 
 ROLLUP gives hierarchical totals, while CUBE gives all possible aggregations.
 
-
+====================
 # SUB QEURY and JOIN
 =====================
 
+------------
 # SUB QEURY
 ------------
 
@@ -1080,9 +1049,10 @@ Q)Get the user from user table but only users whose city is hyderabad in address
 Ans) select * from users where user_id=
     (select user_id from address where city='Hyderabad')
 
-
+---------
 # JOIN
 --------
+
 When we want data from two or more tables  we will use **JOIN** .
 
 Q)Get the user from user table but only users whose city is hyderabad in address table
@@ -1120,7 +1090,7 @@ ANS 2) CORRECT ANSWER
 
 SELECT * FROM EMPLOYEE WHERE (DESIGNATION='JAVA DEVELOPER' OR DESIGNATION='REACT DEVELOPER') AND EMP_SALARY>40000
 
-
+===========
 IN OPERATOR
 ===========
 
@@ -1128,6 +1098,7 @@ IN OPERATOR IS LIKE OR OPERATOR SO INSTEAD OR OR WE CAN USE IN OPERATOR.
 
 SELECT * FROM EMPLOYEE WHERE EMP_ID IN (1,2);
 
+==============
 NOT IN OPERATOR
 ==============
 
@@ -1135,6 +1106,7 @@ IT WILL RETURN OPPOSITE RECORDS OF IN OPERATOR.
 
 SELECT * FROM EMPLOYEE WHERE EMP_ID NOT IN (1,2);
 
+================
 BETWEEN OPERATOR
 ================
 
@@ -1142,7 +1114,7 @@ USE BETWEEN OPERATOR FOR RANGE COMPARITOR SO IT WILL EQUAL  >= AND  <=
 
 SELECT * FROM EMPLOYEE WHERE EMP_SALARY BETWEEN 40000 AND 50000;
 
-
+==============
 LIKE OPERATOR
 ==============
 
@@ -1175,7 +1147,7 @@ SELECT * FROM EMPLOYEE WHERE EMP_NAME LIKE '____'
 
 Q)EMPLOYEES JOINED IN JANUARY MONTH
 
-SELECT * FROM EMPLOYEE WHERE TO_CHAR(EMP_JOINING_DATE LIKE,'YYYY-MMM-DD') LIKE  '__ %JAN% __'
+SELECT * FROM EMPLOYEE WHERE TO_CHAR(EMP_JOINING_DATE ,'YYYY-MMM-DD') LIKE  '__ %JAN% __'
 
 Q)  FOUND EMPLOYEES WHO IS HAVING _ 
 
@@ -1185,9 +1157,9 @@ Q)  FOUND EMPLOYEES WHO IS HAVING %
 
    SELECT * FROM EMPLOYEE WHERE EMP_NAME LIKE '%\%%';
 
-
+  =============
    IS OPERATOR
-   ===========
+  =============
 
 USE IS OPERATOR FOR NULL COMPARISION
 
@@ -1200,7 +1172,7 @@ Q)EMPLOYEES NOT EARNING SALARY
 SELECT * FROM EMPLOYEE WHERE EMP_SALARY IS NULL
 
 
-
+=====
 ALIAS
 =====
 ALIAS MEANS ANOTHER NAME OR ALTERNATIVE NAME.
@@ -1225,7 +1197,7 @@ SAL+(EMP_SAL*0.3)+(EMP_SAL*0.2)-(EMP_SAL*0.1) AS TOTAL_SALARY FROM EMPLOYEE
 
 
 EXECUTION ORDER
-===============
+---------------
 FROM 
 WHERE 
 SELECT 
@@ -1293,8 +1265,9 @@ SELECT * FROM EMPLOYEE AS OF TIMESTAMP(SYSDATE-INTERVAL '5',MINUTE)
 BUILT IN FUNCTIONS IN ORACLE
 =============================
 
+=============
 1.UPPER ()
-----------
+=============
 
 IT WILL CONVERT LOWER CASE LETTERS TO THE UPPER CASE.
 
@@ -1304,9 +1277,9 @@ Q)Convert all employees to UPPER case
 
 Ans) UPDATE EMPLOYEE SET EMP_NAME=LOWER(EMP_NAME)
 
-
+=============
 2.LOWER ()
-----------
+=============
 
 IT WILL CONVERT UPPPER CASE LETTERS TO THE LOWER CASE.
 
@@ -1316,28 +1289,500 @@ Q)Convert all employees to lower case
 
 Ans) UPDATE EMPLOYEE SET EMP_NAME=LOWER(EMP_NAME)
 
-
+=============
 3.INITCAP()
-------------
+=============
+
 converts initials into capitals
 
 Ex: hello world =>Hello world
 
 SELECT INITCAP(EMP_NAME) FROM EMPLOYEE
 
-
-4.LENGHT()
-----------
+=============
+4.LENGTH()
+=============
 RETURNS LENGTH OF THE STRING
 
 SELECT EMP_NAME, LENGTH(EMP_NAME) AS LENGTH FROM EMPLOYEE
 
+=============
 5.SUBSTR()
-----------
+=============
 USED TO EXTRACT PART OF THE STRING 
 
 SELECT EMP_NAME ,SUBSTR(EMP_NAME,3,2) AS SUBSTRING FROM EMPLOYEE;
 
 IN ABOVE IT WILL START FROM 3 CHARACTER IT WILL RETURN NEXT 2 ONLY MEANS TOTAL 2.
+
+
+QEURY => SELECT SUBSTR(EMP_NAME,5) FROM EMPLOYEE (IT WILL START FROM LEFT 5 TH CHARACTER AND RETURN UPTO END RIGHT)
+
+QEURY =>SELECT SUBSTR(EMP_NAME,0,2) FROM EMPLOYEE (IT WILL PRINT ONLY FIRST CHARACTER ONLY)
+
+(ONLY WORK IN SQL NOT IN PostgreSQL)
+QEURY =>SELECT SUBSTR(EMP_NAME,-5) FROM EMPLOYEE 
+
+POSTIVE
+
+| Position | M | A | N | O | J |
+| -------- | - | - | - | - | - |
+| Index    | 1 | 2 | 3 | 4 | 5 |
+
+NEGATIVE
+
+| Position from End | J  | O  | N  | A  | M  |
+| ----------------- | -- | -- | -- | -- | -- |
+| Index             | -1 | -2 | -3 | -4 | -5 |
+
+============
+CONCAT (||)
+============
+
+WE WILL USE || FOR CONCATINATION
+
+(POSTGRES)
+
+EX: SELECT EMP_NAME,
+       SUBSTRING(EMP_NAME,1,3) || SUBSTRING(EMP_ID::text,1,3) || '@gmail.com' AS email
+FROM employee;
+
+(MySQL)
+
+EX: SELECT EMP_NAME,
+       SUBSTRING(EMP_NAME,1,3) || SUBSTRING(EMP_ID,1,3) || '@gmail.com' AS email
+FROM employee;
+
+
+=============
+INSTR()(SQL)
+============
+RETURN POSITION OF A CHAR IN A STRING
+
+==>  INSTR(STRING,CHAR,[START,OCCURANCE])
+
+Q)DISPALY NAMES LIST CONTAINS space
+
+SELECT * 
+FROM EMPLOYEE 
+WHERE INSTR(EMP_NAME, ' ') > 0;
+
+
+=================
+STRPOS()(POSTGRES)
+=================
+RETURN POSITION OF A CHAR IN A STRING
+
+==>  STRPOS(STRING,CHAR)
+
+Q)DISPALY NAMES LIST CONTAINS space
+
+SELECT * 
+FROM EMPLOYEE 
+WHERE STRPOS(EMP_NAME, ' ') > 0;
+
+
+Q) PRINT FIRST NAME FROM NAME 
+
+SELECT 
+    EMP_NAME,
+    SUBSTRING(EMP_NAME, 1, STRPOS(EMP_NAME, ' ') - 1) AS first_name
+    FROM EMPLOYEE
+
+Q) PRINT FIRST NAME FROM NAME 
+
+SELECT EMP_NAME,
+SUBSTRING(EMP_NAME,STRPOS(EMP_NAME, ' ')+1)
+FROM EMPLOYEE ;
+
+
+===========
+LPAD & RPAD
+===========
+BOTH FUNCTIONS ARE USED TO FILL STRING WITH A CHARACTER
+
+
+LPAD (STRING,LENGTH,'CHAR');  FOR THAT STRING IT WILL ADD THAT CHARACTER LEFT SIDE 
+
+RPAD (STRING,LENGTH,'CHAR');  FOR THAT STRING IT WILL ADD THAT CHARACTER RIGHT SIDE
+
+----
+LPAD
+----
+SELECT 
+    EMP_NAME,
+    LPAD(EMP_NAME, 15, '-') AS left_padded,
+FROM EMPLOYEE;
+
+AFTER NAME REMAINING LENGHT WILL FILL LEFT SIDE  WITH  -
+
+
+----
+RPAD
+----
+SELECT 
+    EMP_NAME,
+    RPAD(EMP_NAME, 15, '-') AS right_padded,
+FROM EMPLOYEE;
+
+AFTER NAME REMAINING LENGTH WILL FILL RIGHT SIDE  WITH  -
+
+
+
+NOTE: IF THE LENGHT IS SMALLER THAT THAT WE HAVE MENTIONED (STRING(EX:EMP_NAME)) IT WILL GIVE THAT LENGTH SIZE STRING ONLY IT WON'T ADD -
+
+=================
+LRIM,RTRIM,TRIM
+=================
+-----
+LTRIM
+-----
+
+LTRIM(STRING,STRING) ,IT WILL REMOVE THE STRINGS FROM LEFT SIDE
+
+EX: SELECT EMP_NAME,LTRIM(EMP_NAME,'*') AS LTRIM FROM EMPLOYEE 
+
+-----
+RTRIM
+-----
+
+RTRIM(STRING,STRING) ,IT WILL REMOVE THE STRINGS FROM RIGHT SIDE
+
+EX:SELECT EMP_NAME,RTRIM(EMP_NAME,'*') AS RTRIM FROM EMPLOYEE 
+
+-----
+TRIM
+-----
+
+TRIM(STRING,STRING) ,IT WILL REMOVE THE STRINGS FROM BOTH THE SIDES
+
+EX:SELECT EMP_NAME,TRIM(EMP_NAME,'*') AS TRIM FROM EMPLOYEE 
+
+
+========
+REPLACE
+========
+REPLACE IS USED TO REPLACE ONE STRING WITH ANOTHER STRING
+
+REPLACE(STRING1,STRING2,STRING3) HERE STRING1 IS THE ACTUAL STRING ,STRING2 IS THE WHICH PART WE WANT TO REPLACE AND STRING3 WHAT IS THE REPLACEMENT VALUES
+
+EX: SO IN THE BELOW ON NAMES WHICH ARE CONTAINING * THOSE NAMES WE ARE REPLACING WITH SPACE('')
+
+SELECT EMP_NAME,
+       REPLACE(EMP_NAME, '*', '') AS REPLACES
+FROM EMPLOYEE;
+
+
+
+========
+REVERSE
+========
+REVERSE IS USED TO REVERSE THE STRING 
+
+REVERSE(EMP_NAME)
+
+EX: SELECT REVERSE(EMP_NAME) FROM EMPLOYEE;
+
+
+=================
+NUMERIC FUNCTIONS
+=================
+
+-----------
+## COUNT
+-----------
+
+select count(*) from student; (IT WILL COUNT ALL ROWS FROM TABLE)
+
+SELECT COUNT(EMP_NAME) FROM EMPLOYEE ;IT WILL COUNT  EMP_NAME ROWS FROM TABLE BY EXCLUDING NULLS.
+
+-----------
+## AVERAGE
+-----------
+
+select avg(student_age) as average_age from student; IT WILL RETURN AVG FROM THE COLUMN
+
+-----------
+## MINIMUM
+-----------
+
+select min(student_age) as minimum_age from student; IT WILL RETURN MIN VALUE FROM THE COLUMN
+
+-----------
+## MAXIMUM
+-----------
+
+select max(student_age) as maximum_age from student; IT WILL RETURN MAX VALUE FROM THE COLUMN 
+
+-------
+## SUM
+-------
+
+select sum(student_age) as sum_age from student; IT WILL RETURN SUM VALUE FROM THE COLUMN
+
+
+-------
+## ABS
+-------
+=> IT WILL RETURN THE ABSOLUTE VALUE
+
+ABS(10);
+
+---------
+## SQRT
+---------
+=> IT WILL RETURN SQUARE ROOT
+
+SQRT(100); //10
+
+---------
+## POWER
+---------
+=> IT WILL RETURN POWER 
+
+SQRT(10,2); //100
+
+-------
+## SIGN
+-------
+=>USED TO TEST WHETHER NUMBER IS POSITIVE OR NEGATIVE
+
+SIGN(NUMBER);
+
+SIGN(10) =>1
+SIGN(-10) => -1
+SIGN(10-10) =>0
+
+-------
+## MOD
+-------
+=> IT WILL RETURN THE REMINDER
+
+MOD(NUM1,NUM2);
+
+MOD(10,2); //0
+
+
+=================
+ROUNDING NUMBERS
+=================
+ROUND
+TRUNC
+CEIL
+FLOOR
+
+
+-----
+ROUND
+------
+
+=>USED TO ROUND NUMBER OR INTEGER OR TO DECIMAL PLACED BASED ON AVG
+
+DECIMAL PLACES => -1 WILL ROUNDED TO NEAREST TENS 
+                  -2 WILL ROUNDED TO NEAREST HUNDREDS 
+                  -3 WILL ROUNDED TO NEAREST THOUSANDS 
+
+ ROUND(NUMBER,[DECIMAL PLACES])
+
+ ROUND(38.3) =>38
+ ROUND(38.5) =>39
+ ROUND(38.5678,2) =>38.57
+ ROUND(38.5637) =>38.56
+ ROUND(38.5637,1) =>38.6
+ ROUND(386,-1)=> =>390
+ ROUND(386,-2)=>400
+ ROUND(386,-3)=>0
+ ROUND(1200,-3) =>1000
+
+------
+TRUNC
+------
+
+=> IT WILL ROUNDS NUMBER TO LOWEST
+
+TRUNC(38.9) =>38
+TRUNC(38.4567,2)=>38.45
+TRUNC(386,-2) =>300
+TRUNC(999,-3) =>0
+TRUNC(9999,-3) =>8000
+
+
+------
+CIEL
+------
+
+=> IT WILL ROUNDS NUMBER TO HIGHEST INTEGER,DOES NOT CONTAIN DECIMAL VALUES
+
+TRUNC(38.1) =>39
+TRUNC(386,-2) =>400
+TRUNC(111,-3) =>1000
+TRUNC(9999,-3) =>10000
+
+------
+FLOOR
+------
+=>IT WILL ROUNDS TO LOWEST INTEGER
+
+  FLOOR(NUMBER)
+
+EX: FLOOR(3.9) =>3
+
+==============
+SET OPERATORS
+==============
+
+=>IN ORACE SET OPERATIONS PERFORMED BETWEEN ROWS RETURN BY TWO QUERIES
+
+UNION
+UNION ALL 
+INTERSECT
+MINUS
+
+RULES: 
+1. BOTH QUERIES MUST RETURN SAME NO OF COLUMNS
+2.CORRESPONDING COLUMNS DATA TYPE MUST BE SAME
+
+
+------
+UNION
+------
+=> COMBINE ROWS RETRUN BY TWO QUERIES
+=> ELIMINATES DUPLICATES
+=> SORT THE RESULT
+
+EX: 1
+------
+
+SELECT E.ENAME, D.LOC FROM EMP E INNER JOIN DEPT D ON E.DNO=D.DNO WHERE D.LOC='HYDERABAD'
+UNION
+SELECT E.ENAME, D.LOC FROM EMP E INNER JOIN DEPT D ON E.DNO=D.DNO WHERE D.LOC='DELHI' ORDER BY ENAME DESC
+
+RESULT:
+-------
+
+"MANOJ"	"HYDERABAD"
+"KIRAN"	"HYDERABAD"
+"ARUN"	"DELHI"
+
+
+EX: 2
+------
+
+SELECT E.ENAME, D.LOC FROM EMP E INNER JOIN DEPT D ON E.DNO=D.DNO WHERE D.LOC='HYDERABAD'
+UNION
+SELECT DNAME, LOC FROM DEPT
+
+RESULT:
+--------
+
+"FINANCE"	"DELHI"
+"IT"	"BANGALORE"
+"MANOJ"	"HYDERABAD"
+"HR"	"HYDERABAD"
+"SALES"	"MUMBAI"
+"KIRAN"	"HYDERABAD"
+
+Ex:3
+-----
+
+select job from emp1 where deptno=10
+union 
+select job from emp1 where deptno=40
+
+RESULT:
+--------
+
+"DEVELOPER"
+"HR"
+
+===========
+UNION ALL
+===========
+
+=> COMBINE ROWS RETRUN BY TWO QUERIES
+=>IT WILL KEEP  DUPLICATES
+=> IT WILL NOT SORT THE RESULT
+
+Ex:1
+-----
+
+select job from emp1 where deptno=10
+union 
+select job from emp1 where deptno=40
+
+RESULT:
+--------
+
+"DEVELOPER"
+"DEVELOPER"
+"HR"
+"HR"
+
+===========
+INTERSECT
+===========
+=> IT WILL RETURN THE COMMON VALUES FROM THE OUTPUT OF TWO QUERIES
+
+
+EX:1
+-----
+
+select job from emp1 where deptno=10
+INTERSECT
+select job from emp1 where deptno=40
+
+EXPLANATION
+------------
+IN DEPT NO 10 , I HAVE 2 DEVELOPERS
+IN DEPT NO 40,I HAVE 2 HR ,1 DEVELOPER
+
+DEVELOPER IS COMMON IN BOTH THE QUERIES RESULT
+
+
+RESULT
+-----
+"DEVELOPER"
+
+
+==============================
+MINUS(MY SQL) EXCEPT (POSTGRE)
+==============================
+
+=> RETURNS VALUES PRESENT IN 1ST QUERY OUTPUT AND NOT PRESENT IN 2ND QUERY OUTPUT 
+
+EX:1
+-----
+MySQL
+----
+
+
+SELECT JOB FROM EMP1 WHERE DEPTNO = 10
+MINUS
+SELECT JOB FROM EMP1 WHERE DEPTNO = 40;
+
+
+PostgreSQL
+-------------
+
+SELECT JOB FROM EMP1 WHERE DEPTNO = 10
+EXCEPT
+SELECT JOB FROM EMP1 WHERE DEPTNO = 40;
+
+
+RESULT
+-----
+"SALES"
+
+==============
+UNION VS JOIN
+==============
+
+UNION                    vs               JOIN
+
+combine rows                         combine coloumns
+horizontal merge                     vertical merge
+only similar structure               dissimilar structure 
+can be combined with union           can also be joined
+
 
 
