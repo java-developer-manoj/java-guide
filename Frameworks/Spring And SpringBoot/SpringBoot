@@ -15,7 +15,7 @@ take the  spring starter parent version for all dependencies,no need to mention 
   take care remaining things.
 
 3.Embedded Tomcat/jetty
-  --------------------
+--------------------
   Springboot  is providing Embedded tomcat server to quickly deploy our jar or var file in tomcat server so we can able to test fastly
 
 4.Provide Production Ready Features such as health checks and metrics
@@ -25,7 +25,7 @@ take the  spring starter parent version for all dependencies,no need to mention 
 
 
 What all springboot startes you have used or what all module you have worked on?
- ===============================================================================
+================================================================================
 1.springboot starter web(if we want to use web mvc application)
 2.springboot starter data JPA(if we want integrate our project with any persistant layer)
 3.springboot starter security(for security)
@@ -34,16 +34,16 @@ What all springboot startes you have used or what all module you have worked on?
   
 How will you run your springboot application
 ============================================
-whenever we are starting out project it will  not create the jar direclty ,it will goto the compiled classes folder inside target folder,and it will trigger the main method.
+whenever we are starting out project it will  not create the jar direclty ,it will go to the compiled classes folder inside target folder,and it will trigger the main method.
 
 
 What is the purpose of @SpringbootApplication annotation in springboot?
 =======================================================================
 
 It is a combination of 3 annotations
-1.@EnableAutoConfiguration(automatically configure various components for out application by scanning dependencies and load required jar)
+1.@EnableAutoConfiguration(automatically configure various components for our application by scanning dependencies and load required jar files)
 2.@ComoponentScan(By Default it will load the main class and it will load the class under that manin class package ,it will not load other packages,it will not add that beans to application context)
-3.@Configuration(this will load the customize or userdefined configuration classes,It allow register the extra bean in our context or input additional configuration classes)
+3.@Configuration(this will load the customize or userdefined configuration classes,It allow to register the extra bean in our context or input additional configuration classes)
 
 
 How can you load the  outside packeges explicitly which or not under your project main package?
@@ -71,13 +71,13 @@ we can check what are the classes its adding by adding below key value pair  in 
 
 debug:true
 
-How can you disable specific AutoConfiguration class in springboo?
+How can you disable specific AutoConfiguration class in Springboot?
 ===================================================================
 Go to main class and define like below
 
 @SpringbootApplication(exclude={DataSourceConfiguration.class})
 
-How can you customize the Default configuration in springboot?
+How can you customize the Default port configuration in springboot?
 ==============================================================
 server.port:8081 this is how can do 
 
@@ -105,7 +105,8 @@ this run method execute after the spring applicaton main method run method.
 
 Can you explain the purpose of StereoType annotations?
 =====================================================
-StereoType annotations are used to indicate the role or purpose of the class.There are different types of annotations are there like @Component ,@Controller,@Service ,@RestController,@Repository
+StereoType annotations are used to indicate the role or purpose of the class.
+There are different types of annotations are there like @Component ,@Controller,@Service ,@RestController,@Repository
 
 These are same but just define the role of our class we will use these different names,like somebody can easily understand by seeing purpose of those annotations.
 
@@ -176,6 +177,8 @@ It can't resolve the circular dependency.
 
 Circular Dependency means?
 --------------------------
+Circular Dependency occurs when two or more classes depend on each other directly or indirectly, forming a cycle.
+
 class UserService injecting ProductService and ProductService injecting UserService
 
 Not work with constructor injection,our application will not run,below is the problem code
@@ -297,7 +300,7 @@ prefer one format over the other?
 
 .Syntax and Structure 
  --------------------
-  -properties-file: we will user equal to provide value,in properties file we will write boiler plate code 
+  -properties-file: we will use equal to provide value,in properties file we will write boiler plate code 
   -yml-file: we will : symbol to provide value and also its more human readable and no boiler plate code
 
 .Hierarchy
@@ -336,7 +339,7 @@ will load first properties or yml file?
 
 application.properties have more priority then yml file,so application.properties file load first then yml file.
 
-How to load external properties in springboot?
+How to load external properties  in springboot?
 =============================================
  -properties-file: spring.config.import=(if it is in project resource same location as application.properties no need mention full path just name of that properties file:ex:- 
  classpath :email-template.properties  if it is our computer ex: file://users/documents/email-template.properties like this we have to do.)
@@ -365,7 +368,7 @@ in application.yml file
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Component
+@Component 
 public class DataSource{
 
 private String url;
@@ -632,7 +635,7 @@ This WebSocket scope is specific to websocket based applications,and it create a
 
 How to Define Custom Bean Scope?
 ===============================
-if we want to create custom scope implements Scope interface and write our own logic.and regiter our scope in context and then user.
+if we want to create custom scope implements Scope interface and write our own logic.and register our scope in context and then user.
 
 Can you provide a few real time use cases for when to choose Singletone scope and Prototype scope?
 ==================================================================================================
@@ -713,7 +716,6 @@ return context.getBean(ProtoTypeBean.class);
 
 @Component
 @Scope("prototype")
-
 @Autowired
 public class ProtoTypeßean {
 
@@ -834,7 +836,7 @@ What is difference between @PathVariable and @RequestParam?
 -----------------------------------------------------------
 @PathVariable:- it's a mandatory,we need to provide the value definatly othewise we will get 404 resource not found error.
 
-whenever our input is mandatory as part of our ulr then we will use @PathVariable.
+whenever our input is mandatory as part of our url then we will use @PathVariable.
 
 @RequestParam:- it's not a mandatory,if we keep required=false,Spring automatically inject null for that variable so,no need to send from frontend,it will execute normally.
 
@@ -857,7 +859,7 @@ public String homPage()
     return "home";//home is the frontend page like thymeleaf
 }
 
-Note:we can return values and objects also by adding @ResopnseBody annotation extra on method level,if we use controller annotation and if we want to return values or object data as json mandatory write @ResponseBody annotation at method level,that is the reason most of the web applications use @RestController because its  combination of @ResponseBody+@Controller
+Note:we can return values and objects also by adding @ResponseBody annotation extra on method level,if we use controller annotation and if we want to return values or object data as json mandatory write @ResponseBody annotation at method level,that is the reason most of the web applications use @RestController because its  combination of @ResponseBody+@Controller
 
 
 @RequestMapping("/")
@@ -875,7 +877,7 @@ public String good()
 RestController is the combination of @ResponseBody+@Controller
 
 which is responsbile for handling api's in a class,if we use @RestControler annotation
-from the method it will return the object or value ,it will not return tha frontend pages it will return json data we can say.
+from the method it will return the object or value ,it will not return the frontend pages it will return json data we can say.
 
 @RequestMapping("/")
 public String good()
@@ -985,7 +987,7 @@ Yes,it's possible but it's not a recommanded way.
 How can we perform content negotiation(XML/JSON) in Rest Endpoint?
 ==================================================================
 @GetMapping(produces={"application/json","application/xml"})
-public Lixt<Products> getProducts()
+public List<Products> getProducts()
 {
   return service.getProducts();
 }
@@ -1015,16 +1017,19 @@ if we want check two type or response,in browser along with our api just mention
 
 what all status code you have observed in you application?
 ===========================================================
-200 ok
-201 created
-400 bad request (wrong input)
-401 unathorized(wrong credintials)
-403 (Authentication successful but ur not authorize to access that future)
-404 (wrong resource)
-405 (wrong http method accessing,instead of using GET http method,calling POST http method with same api)
-415 Unsupported media type(instead of sending json ,if we send xml)
-500 internal server error
-
+✅ HTTP Status Codes (Final Answer)
+🟢 Success
+200 OK → Request successful (GET, PUT, DELETE)
+201 Created → Resource successfully created (POST)
+🔴 Client Errors (4xx)
+400 Bad Request → Invalid input / validation failure
+401 Unauthorized → Authentication failed (invalid or missing credentials)
+403 Forbidden → Authenticated but not authorized to access resource
+404 Not Found → Requested resource does not exist
+405 Method Not Allowed → Wrong HTTP method used
+415 Unsupported Media Type → Request format not supported (e.g., XML instead of JSON)
+🔴 Server Errors (5xx)
+500 Internal Server Error → Unexpected server-side failure
 
 
 How can you customize the status code for ur endpoint?
@@ -1714,7 +1719,7 @@ spring:
   jpa:
     show-sql:true
     hibernate:
-      ddl-auto:none
+      ddl-auto:validate 
 
 
 What is it important to configure a physical naming strategy?
@@ -1745,7 +1750,7 @@ What are difference between Hibernate JPA and Spring Data JPA?
 
 Hibernate
 --------
-This is a ORM Tool ,Object Relational Mapping for java.and also this hibernate direclty help you to mapping from the object to the table vice versa,table mapping done by hibernate.and also hibernate provide couple features called catching and transactional
+This is a ORM Tool ,Object Relational Mapping for java and also this hibernate direclty help you to mapping from the object to the table vice versa,table mapping done by hibernate.and also hibernate provide couple features called catching and transactional
 
 JPA
 ---
@@ -1789,10 +1794,6 @@ JPA
 ---
 Java Persistance API which use ful whenever we change the ORM Tool.
 like if we change from hibernate to EclipseLink(this also one orm tool) so no need to change the code JPA will manage all the things.
-
-
-
-
 
 What are the  different ways to define custom queries in Spring Data JPA?
 =========================================================================
@@ -1954,10 +1955,4 @@ private Datae updateddBy;
 
 This annotation on main class
 @EnableJpaAuditing
-
-
-
-
-
-
 

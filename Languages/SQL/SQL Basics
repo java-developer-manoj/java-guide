@@ -625,13 +625,17 @@ select emp_name as names ,emp_commission as commission from employee order by em
 
 # Order by salary desc and commision asc
 ------------------------------------------
+“ORDER BY applies secondary sorting only when primary column values are equal.”
+
 select * from employee order by emp_salary desc ,emp_commision asc
 
 # Order by student avg desc and math desc and scince asc
 ---------------------------------------------------------
 
-select * from students order by (scince,social,math)/3 desc ,math desc,science asc
-
+SELECT *, 
+       (science + social + math)/3 AS avg_marks
+FROM students
+ORDER BY avg_marks DESC, math DESC, science ASC;
 
 
 ==========
@@ -677,8 +681,8 @@ Ex: -
 
 select distinct emp_name from employee;
 
-# distinct with multiple coloumn it will not distinct by single single column it will distinct by combination of mentioned columns
-------------------------------------------------------------------------------------
+# distinct with multiple coloumn it will not distinct by single  column it will distinct by combination of mentioned columns
+-----------------------------------------------------------------------------------------------------------------------------
 
 select distinct emp_name,emp_address from employee;
 
@@ -710,7 +714,7 @@ select designation , count(*)  from
 employee group by designation order by designation asc
 
 
-# count the employees grouping by oining date year with  asc order
+# count the employees grouping by joining date year with  asc order
 -----------------------------------------------------------------
 
 select to_char(emp_joining_date,'yyyy') , count(*)  from
@@ -768,7 +772,9 @@ Ans) select emp_department_number as department , sum(emp_salary) from employee
 
 Q)Grand total only
 
-Ans) select emp_department_number as department,sum(emp_salary) from employee group by rollup(emp_department_number)
+Ans) select emp_department_number 
+as department,sum(emp_salary) from 
+employee group by rollup(emp_department_number)
 
 Q)Subtotal with Grand total of each department
 
@@ -1081,14 +1087,24 @@ LOOKS SAME BUT DIFFERENCE
 --------------------------
 Q) FETCH EMPLOYEE WHOSE DESIGNATION IS JAVA DEVELOPER OR REACT DEVELOPER AND THOSE SALARY IS GREATER THAN 50000
 
-ANS 1) SELECT * FROM EMPLOYEE WHERE DESIGNATION='JAVA DEVELOPER' OR DESIGNATION='REACT DEVELOPER' AND EMP_SALARY>40000
+ANS 1)
+SELECT * FROM EMPLOYEE
+WHERE DESIGNATION='JAVA DEVELOPER'
+OR DESIGNATION='REACT DEVELOPER'
+AND EMP_SALARY > 50000
 
-SO IT WILL RETURN ALL JAVA DEVELOPERS AND RETURN REACT DEVELOPERS WHOSE SALARY IS GREATER THAN 50000, IT WILL NOT CHECK SALARY CONDIDTION FOR JAVA DEVELOPER BEACASUE AND OPERTION HAVE MORE PRIORIRY
+SO IT WILL RETURN ALL JAVA DEVELOPERS AND RETURN ONLY REACT DEVELOPERS WHOSE SALARY IS GREATER THAN 50000.
+IT WILL NOT CHECK SALARY CONDITION FOR JAVA DEVELOPERS BECAUSE AND OPERATOR HAS HIGHER PRIORITY THAN OR.
 
+---
 
-ANS 2) CORRECT ANSWER 
+ANS 2) CORRECT ANSWER
 
-SELECT * FROM EMPLOYEE WHERE (DESIGNATION='JAVA DEVELOPER' OR DESIGNATION='REACT DEVELOPER') AND EMP_SALARY>40000
+SELECT * FROM EMPLOYEE
+WHERE (DESIGNATION='JAVA DEVELOPER' OR DESIGNATION='REACT DEVELOPER')
+AND EMP_SALARY > 50000
+
+NOW IT WILL RETURN ONLY JAVA AND REACT DEVELOPERS WHOSE SALARY IS GREATER THAN 50000.
 
 ===========
 IN OPERATOR
@@ -1187,9 +1203,13 @@ SELECT EMP_NAME, ROUND((CURRENT_DATE-EMP_JOINING_DATE)/365) AS EXPERIENCE FROM E
 
 Q) DISPLAY EMPLOYEES WHOSE EXP HAVING MORE THAN 2
 
-SELECT EMP_NAME, ROUND((CURRENT_DATE-EMP_JOINING_DATE)/365) AS EXPERIENCE FROM EMPLOYEE;
-WHERE EXPERIENCE >2
-
+SELECT *
+FROM (
+    SELECT EMP_NAME, 
+           ROUND((CURRENT_DATE - EMP_JOINING_DATE)/365) AS EXPERIENCE
+    FROM EMPLOYEE
+) t
+WHERE EXPERIENCE > 2;
 Q) DISPALY EMPNAME,SAL,HRA,DA,TAX TOTAL SAL?
 
 SELECT EMP_NAME ,EMP_SAL*0.3 AS HRA,EMP_SAL*0.2 AS DA,EMP_SAL*0.1 AS TAX,
@@ -1414,7 +1434,7 @@ SELECT
     LPAD(EMP_NAME, 15, '-') AS left_padded,
 FROM EMPLOYEE;
 
-AFTER NAME REMAINING LENGHT WILL FILL LEFT SIDE  WITH  -
+AFTER NAME REMAINING LENGTH WILL FILL LEFT SIDE  WITH  -
 
 
 ----
@@ -1540,7 +1560,7 @@ SQRT(100); //10
 ---------
 => IT WILL RETURN POWER 
 
-SQRT(10,2); //100
+power(10,2); //100
 
 -------
 ## SIGN
