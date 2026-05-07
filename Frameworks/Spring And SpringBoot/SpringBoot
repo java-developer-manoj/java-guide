@@ -1956,3 +1956,17 @@ private Datae updateddBy;
 This annotation on main class
 @EnableJpaAuditing
 
+ mvn clean
+------------
+
+mvn clean removes the previously generated build files by deleting the target folder. 
+
+ mvn clean install
+-------------------
+
+mvn clean install first cleans the old build, then compiles the code, runs tests, packages the project into a JAR/WAR, and installs it into the local Maven repository so it can be used by other projects.
+
+
+git and gituhub
+---------------
+Git is a distributed version control system used to manage and track code changes locally, while GitHub is a cloud-based platform that hosts Git repositories and provides collaboration features like pull requests, issues, and code reviews.
